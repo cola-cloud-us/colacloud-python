@@ -43,9 +43,9 @@ Example usage:
 from .async_client import AsyncColaCloud
 from .client import ColaCloud
 from .exceptions import (
+    APIConnectionError,
     AuthenticationError,
     ColaCloudError,
-    ConnectionError,
     NotFoundError,
     RateLimitError,
     ServerError,
@@ -71,8 +71,7 @@ from .models import (
     UsageResponse,
 )
 from .pagination import AsyncPaginatedIterator, PaginatedIterator
-
-__version__ = "0.1.0"
+from ._version import __version__
 
 __all__ = [
     # Version
@@ -87,7 +86,7 @@ __all__ = [
     "NotFoundError",
     "ValidationError",
     "ServerError",
-    "ConnectionError",
+    "APIConnectionError",
     # Models
     "ColaSummary",
     "ColaDetail",

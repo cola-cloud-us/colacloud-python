@@ -46,6 +46,7 @@ dependencies = [
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.0.0",
     "pytest-httpx>=0.30.0",
     "respx>=0.21.0",
     "black>=24.0.0",
@@ -56,8 +57,8 @@ dev = [
 [project.urls]
 Homepage = "https://colacloud.us"
 Documentation = "https://colacloud.us/docs/api"
-Repository = "https://github.com/colacloud/colacloud-python"
-Issues = "https://github.com/colacloud/colacloud-python/issues"
+Repository = "https://github.com/cola-cloud-us/colacloud-python"
+Issues = "https://github.com/cola-cloud-us/colacloud-python/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/colacloud"]

@@ -319,7 +319,7 @@ All responses are fully typed with Pydantic models:
 
 ```bash
 # Clone the repository
-git clone https://github.com/colacloud/colacloud-python.git
+git clone https://github.com/cola-cloud-us/colacloud-python.git
 cd colacloud-python
 
 # Install dependencies with uv
@@ -347,4 +347,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 - [COLA Cloud Website](https://colacloud.us)
 - [API Documentation](https://colacloud.us/docs/api)
-- [GitHub Repository](https://github.com/colacloud/colacloud-python)
+- [GitHub Repository](https://github.com/cola-cloud-us/colacloud-python)

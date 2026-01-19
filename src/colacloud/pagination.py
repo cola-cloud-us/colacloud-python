@@ -1,10 +1,14 @@
 """Pagination helpers for iterating through large result sets."""
 
-from typing import Any, AsyncIterator, Callable, Iterator, TypeVar
+from typing import Any, AsyncIterator, Callable, Iterator, Optional, TypeVar
 
 from .models import ColaSummary, Pagination, PermitteeSummary
 
 T = TypeVar("T", ColaSummary, PermitteeSummary)
+
+# Type alias for fetch_page functions
+FetchPageFunc = Callable[[int], tuple[list[T], Pagination]]
+AsyncFetchPageFunc = Callable[[int], "tuple[list[T], Pagination]"]
 
 
 class PaginatedIterator(Iterator[T]):
@@ -33,11 +37,11 @@ class PaginatedIterator(Iterator[T]):
                 (items, pagination) tuple.
             start_page: Starting page number (default: 1).
         """
-        self._fetch_page = fetch_page
+        self._fetch_page: Callable[[int], tuple[list[T], Pagination]] = fetch_page
         self._current_page = start_page
         self._items: list[T] = []
         self._item_index = 0
-        self._pagination: Pagination | None = None
+        self._pagination: Optional[Pagination] = None
         self._exhausted = False
 
     def __iter__(self) -> "PaginatedIterator[T]":
@@ -73,12 +77,12 @@ class PaginatedIterator(Iterator[T]):
         return item
 
     @property
-    def total(self) -> int | None:
+    def total(self) -> Optional[int]:
         """Total number of items across all pages, if known."""
         return self._pagination.total if self._pagination else None
 
     @property
-    def pages(self) -> int | None:
+    def pages(self) -> Optional[int]:
         """Total number of pages, if known."""
         return self._pagination.pages if self._pagination else None
 
@@ -113,7 +117,7 @@ class AsyncPaginatedIterator(AsyncIterator[T]):
         self._current_page = start_page
         self._items: list[T] = []
         self._item_index = 0
-        self._pagination: Pagination | None = None
+        self._pagination: Optional[Pagination] = None
         self._exhausted = False
 
     def __aiter__(self) -> "AsyncPaginatedIterator[T]":
@@ -149,11 +153,11 @@ class AsyncPaginatedIterator(AsyncIterator[T]):
         return item
 
     @property
-    def total(self) -> int | None:
+    def total(self) -> Optional[int]:
         """Total number of items across all pages, if known."""
         return self._pagination.total if self._pagination else None
 
     @property
-    def pages(self) -> int | None:
+    def pages(self) -> Optional[int]:
         """Total number of pages, if known."""
         return self._pagination.pages if self._pagination else None

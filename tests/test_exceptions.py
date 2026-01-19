@@ -3,9 +3,9 @@
 import pytest
 
 from colacloud.exceptions import (
+    APIConnectionError,
     AuthenticationError,
     ColaCloudError,
-    ConnectionError,
     NotFoundError,
     RateLimitError,
     ServerError,
@@ -117,16 +117,16 @@ class TestServerError:
         assert error.status_code == 503
 
 
-class TestConnectionError:
-    """Tests for ConnectionError exception."""
+class TestAPIConnectionError:
+    """Tests for APIConnectionError exception."""
 
     def test_default_message(self):
-        error = ConnectionError()
+        error = APIConnectionError()
         assert "connect" in str(error).lower()
         assert error.status_code is None
 
     def test_custom_message(self):
-        error = ConnectionError(message="DNS resolution failed")
+        error = APIConnectionError(message="DNS resolution failed")
         assert str(error) == "DNS resolution failed"
 
 
@@ -140,7 +140,7 @@ class TestExceptionHierarchy:
             NotFoundError(),
             ValidationError(),
             ServerError(),
-            ConnectionError(),
+            APIConnectionError(),
         ]
 
         for exc in exceptions:
@@ -154,7 +154,7 @@ class TestExceptionHierarchy:
             NotFoundError(),
             ValidationError(),
             ServerError(),
-            ConnectionError(),
+            APIConnectionError(),
         ]
 
         for exc in exceptions:

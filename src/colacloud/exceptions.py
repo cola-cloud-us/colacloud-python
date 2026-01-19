@@ -117,7 +117,7 @@ class ServerError(ColaCloudError):
         super().__init__(message, status_code, response_body)
 
 
-class ConnectionError(ColaCloudError):
+class APIConnectionError(ColaCloudError):
     """Raised when there's a network connection problem.
 
     This is raised when:

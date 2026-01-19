@@ -1,12 +1,13 @@
 """Asynchronous client for the COLA Cloud API."""
 
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import httpx
 
+from ._version import __version__
 from .exceptions import (
+    APIConnectionError,
     AuthenticationError,
-    ConnectionError,
     ColaCloudError,
     NotFoundError,
     RateLimitError,
@@ -356,6 +357,8 @@ class AsyncColaCloud:
         timeout: float = DEFAULT_TIMEOUT,
         http_client: Optional[httpx.AsyncClient] = None,
     ) -> None:
+        if not api_key or not api_key.strip():
+            raise ValueError("api_key is required and cannot be empty")
         self._api_key = api_key
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout
@@ -390,7 +393,7 @@ class AsyncColaCloud:
         return {
             "X-API-Key": self._api_key,
             "Accept": "application/json",
-            "User-Agent": "colacloud-python/0.1.0",
+            "User-Agent": f"colacloud-python/{__version__}",
         }
 
     def _parse_rate_limit_headers(self, headers: httpx.Headers) -> Optional[RateLimitInfo]:
@@ -469,11 +472,11 @@ class AsyncColaCloud:
                 json=json,
             )
         except httpx.ConnectError as e:
-            raise ConnectionError(f"Failed to connect to {url}: {e}")
+            raise APIConnectionError(f"Failed to connect to {url}: {e}")
         except httpx.TimeoutException as e:
-            raise ConnectionError(f"Request timed out: {e}")
+            raise APIConnectionError(f"Request timed out: {e}")
         except httpx.RequestError as e:
-            raise ConnectionError(f"Request failed: {e}")
+            raise APIConnectionError(f"Request failed: {e}")
 
         # Update rate limit info
         self._last_rate_limit_info = self._parse_rate_limit_headers(response.headers)
@@ -481,7 +484,7 @@ class AsyncColaCloud:
         if not response.is_success:
             self._handle_error(response)
 
-        return response.json()
+        return cast(dict[str, Any], response.json())
 
     async def get_usage(self) -> UsageInfo:
         """Get current API usage statistics.

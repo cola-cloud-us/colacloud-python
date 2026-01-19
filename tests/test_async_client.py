@@ -24,6 +24,14 @@ class TestAsyncColaCloudClient:
         assert client._base_url == "https://app.colacloud.us/api/v1"
         await client.close()
 
+    async def test_client_empty_api_key_raises_error(self):
+        with pytest.raises(ValueError, match="api_key is required"):
+            AsyncColaCloud(api_key="")
+
+    async def test_client_whitespace_api_key_raises_error(self):
+        with pytest.raises(ValueError, match="api_key is required"):
+            AsyncColaCloud(api_key="   ")
+
     async def test_client_context_manager(self):
         async with AsyncColaCloud(api_key="test-key") as client:
             assert client._api_key == "test-key"

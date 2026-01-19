@@ -11,7 +11,7 @@ from colacloud import (
     NotFoundError,
     ValidationError,
     ServerError,
-    ConnectionError,
+    APIConnectionError,
     ColaSummary,
     ColaDetail,
     PermitteeSummary,
@@ -28,6 +28,14 @@ class TestColaCloudClient:
         assert client._base_url == "https://app.colacloud.us/api/v1"
         assert client._timeout == 30.0
         client.close()
+
+    def test_client_empty_api_key_raises_error(self):
+        with pytest.raises(ValueError, match="api_key is required"):
+            ColaCloud(api_key="")
+
+    def test_client_whitespace_api_key_raises_error(self):
+        with pytest.raises(ValueError, match="api_key is required"):
+            ColaCloud(api_key="   ")
 
     def test_client_custom_base_url(self):
         client = ColaCloud(api_key="test-key", base_url="https://custom.api.com/v1/")
