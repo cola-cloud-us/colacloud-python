@@ -1,16 +1,16 @@
 """Tests for the asynchronous AsyncColaCloud client."""
 
-import pytest
 import httpx
+import pytest
 from pytest_httpx import HTTPXMock
 
 from colacloud import (
     AsyncColaCloud,
     AuthenticationError,
-    RateLimitError,
-    NotFoundError,
     ColaDetail,
+    NotFoundError,
     PermitteeDetail,
+    RateLimitError,
 )
 
 

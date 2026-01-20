@@ -1,21 +1,21 @@
 """Tests for the synchronous ColaCloud client."""
 
-import pytest
 import httpx
+import pytest
 from pytest_httpx import HTTPXMock
 
 from colacloud import (
-    ColaCloud,
-    AuthenticationError,
-    RateLimitError,
-    NotFoundError,
-    ValidationError,
-    ServerError,
     APIConnectionError,
-    ColaSummary,
+    AuthenticationError,
+    ColaCloud,
     ColaDetail,
-    PermitteeSummary,
+    ColaSummary,
+    NotFoundError,
     PermitteeDetail,
+    PermitteeSummary,
+    RateLimitError,
+    ServerError,
+    ValidationError,
 )
 
 

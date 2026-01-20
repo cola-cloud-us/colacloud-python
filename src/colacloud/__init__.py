@@ -40,6 +40,7 @@ Example usage:
     ```
 """
 
+from ._version import __version__
 from .async_client import AsyncColaCloud
 from .client import ColaCloud
 from .exceptions import (
@@ -60,8 +61,8 @@ from .models import (
     ColaImage,
     ColaListResponse,
     ColaSummary,
-    Pagination,
     PaginatedResponse,
+    Pagination,
     PermitteeDetail,
     PermitteeDetailResponse,
     PermitteeListResponse,
@@ -71,7 +72,6 @@ from .models import (
     UsageResponse,
 )
 from .pagination import AsyncPaginatedIterator, PaginatedIterator
-from ._version import __version__
 
 __all__ = [
     # Version

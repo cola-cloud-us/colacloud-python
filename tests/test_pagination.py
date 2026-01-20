@@ -12,12 +12,8 @@ class TestPaginatedIterator:
     def test_single_page(self):
         """Test iteration over a single page of results."""
         items = [
-            ColaSummary(
-                ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"
-            ),
-            ColaSummary(
-                ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"
-            ),
+            ColaSummary(ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"),
+            ColaSummary(ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"),
         ]
         pagination = Pagination(page=1, per_page=10, total=2, pages=1)
 
@@ -36,14 +32,10 @@ class TestPaginatedIterator:
     def test_multiple_pages(self):
         """Test iteration over multiple pages."""
         page1_items = [
-            ColaSummary(
-                ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"
-            ),
+            ColaSummary(ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"),
         ]
         page2_items = [
-            ColaSummary(
-                ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"
-            ),
+            ColaSummary(ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"),
         ]
 
         def fetch_page(page: int):
@@ -74,9 +66,7 @@ class TestPaginatedIterator:
     def test_total_property(self):
         """Test that total property is available after first fetch."""
         items = [
-            ColaSummary(
-                ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"
-            ),
+            ColaSummary(ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"),
         ]
         pagination = Pagination(page=1, per_page=10, total=100, pages=10)
 
@@ -98,9 +88,7 @@ class TestPaginatedIterator:
     def test_start_page_parameter(self):
         """Test starting from a specific page."""
         page2_items = [
-            ColaSummary(
-                ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"
-            ),
+            ColaSummary(ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"),
         ]
 
         def fetch_page(page: int):
@@ -122,12 +110,8 @@ class TestAsyncPaginatedIterator:
     async def test_single_page(self):
         """Test async iteration over a single page of results."""
         items = [
-            ColaSummary(
-                ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"
-            ),
-            ColaSummary(
-                ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"
-            ),
+            ColaSummary(ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"),
+            ColaSummary(ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"),
         ]
         pagination = Pagination(page=1, per_page=10, total=2, pages=1)
 
@@ -148,14 +132,10 @@ class TestAsyncPaginatedIterator:
     async def test_multiple_pages(self):
         """Test async iteration over multiple pages."""
         page1_items = [
-            ColaSummary(
-                ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"
-            ),
+            ColaSummary(ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"),
         ]
         page2_items = [
-            ColaSummary(
-                ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"
-            ),
+            ColaSummary(ttb_id="2", brand_name="Brand 2", product_type="wine", permit_number="P2"),
         ]
 
         async def fetch_page(page: int):
@@ -190,9 +170,7 @@ class TestAsyncPaginatedIterator:
     async def test_total_property(self):
         """Test that total property is available after first fetch."""
         items = [
-            ColaSummary(
-                ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"
-            ),
+            ColaSummary(ttb_id="1", brand_name="Brand 1", product_type="wine", permit_number="P1"),
         ]
         pagination = Pagination(page=1, per_page=10, total=100, pages=10)
 
