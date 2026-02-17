@@ -1,6 +1,5 @@
 """Tests for the asynchronous AsyncColaCloud client."""
 
-import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 

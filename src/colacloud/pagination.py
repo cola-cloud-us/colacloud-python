@@ -1,6 +1,7 @@
 """Pagination helpers for iterating through large result sets."""
 
-from typing import Any, AsyncIterator, Callable, Iterator, Optional, TypeVar
+from collections.abc import AsyncIterator, Callable, Iterator
+from typing import Any, TypeVar
 
 from .models import ColaSummary, Pagination, PermitteeSummary
 
@@ -41,7 +42,7 @@ class PaginatedIterator(Iterator[T]):
         self._current_page = start_page
         self._items: list[T] = []
         self._item_index = 0
-        self._pagination: Optional[Pagination] = None
+        self._pagination: Pagination | None = None
         self._exhausted = False
 
     def __iter__(self) -> "PaginatedIterator[T]":
@@ -77,12 +78,12 @@ class PaginatedIterator(Iterator[T]):
         return item
 
     @property
-    def total(self) -> Optional[int]:
+    def total(self) -> int | None:
         """Total number of items across all pages, if known."""
         return self._pagination.total if self._pagination else None
 
     @property
-    def pages(self) -> Optional[int]:
+    def pages(self) -> int | None:
         """Total number of pages, if known."""
         return self._pagination.pages if self._pagination else None
 
@@ -117,7 +118,7 @@ class AsyncPaginatedIterator(AsyncIterator[T]):
         self._current_page = start_page
         self._items: list[T] = []
         self._item_index = 0
-        self._pagination: Optional[Pagination] = None
+        self._pagination: Pagination | None = None
         self._exhausted = False
 
     def __aiter__(self) -> "AsyncPaginatedIterator[T]":
@@ -153,11 +154,11 @@ class AsyncPaginatedIterator(AsyncIterator[T]):
         return item
 
     @property
-    def total(self) -> Optional[int]:
+    def total(self) -> int | None:
         """Total number of items across all pages, if known."""
         return self._pagination.total if self._pagination else None
 
     @property
-    def pages(self) -> Optional[int]:
+    def pages(self) -> int | None:
         """Total number of pages, if known."""
         return self._pagination.pages if self._pagination else None

@@ -2,8 +2,6 @@
 
 from datetime import date
 
-import pytest
-
 from colacloud.models import (
     BarcodeLookupResponse,
     BarcodeLookupResult,

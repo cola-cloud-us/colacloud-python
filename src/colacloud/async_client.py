@@ -1,6 +1,6 @@
 """Asynchronous client for the COLA Cloud API."""
 
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 import httpx
 
@@ -45,14 +45,14 @@ class AsyncColasResource:
     async def list(
         self,
         *,
-        q: Optional[str] = None,
-        product_type: Optional[str] = None,
-        origin: Optional[str] = None,
-        brand_name: Optional[str] = None,
-        approval_date_from: Optional[str] = None,
-        approval_date_to: Optional[str] = None,
-        abv_min: Optional[float] = None,
-        abv_max: Optional[float] = None,
+        q: str | None = None,
+        product_type: str | None = None,
+        origin: str | None = None,
+        brand_name: str | None = None,
+        approval_date_from: str | None = None,
+        approval_date_to: str | None = None,
+        abv_min: float | None = None,
+        abv_max: float | None = None,
         page: int = 1,
         per_page: int = 20,
     ) -> ColaListResponse:
@@ -60,7 +60,7 @@ class AsyncColasResource:
 
         Args:
             q: Full-text search query.
-            product_type: Filter by product type (e.g., "malt beverage", "wine", "distilled spirits").
+            product_type: Filter by product type.
             origin: Filter by country/state of origin.
             brand_name: Filter by brand name (partial match).
             approval_date_from: Filter by minimum approval date (YYYY-MM-DD).
@@ -123,14 +123,14 @@ class AsyncColasResource:
     def iterate(
         self,
         *,
-        q: Optional[str] = None,
-        product_type: Optional[str] = None,
-        origin: Optional[str] = None,
-        brand_name: Optional[str] = None,
-        approval_date_from: Optional[str] = None,
-        approval_date_to: Optional[str] = None,
-        abv_min: Optional[float] = None,
-        abv_max: Optional[float] = None,
+        q: str | None = None,
+        product_type: str | None = None,
+        origin: str | None = None,
+        brand_name: str | None = None,
+        approval_date_from: str | None = None,
+        approval_date_to: str | None = None,
+        abv_min: float | None = None,
+        abv_max: float | None = None,
         per_page: int = 100,
     ) -> AsyncPaginatedIterator[ColaSummary]:
         """Iterate through all matching COLAs with automatic pagination.
@@ -186,9 +186,9 @@ class AsyncPermitteesResource:
     async def list(
         self,
         *,
-        q: Optional[str] = None,
-        state: Optional[str] = None,
-        is_active: Optional[bool] = None,
+        q: str | None = None,
+        state: str | None = None,
+        is_active: bool | None = None,
         page: int = 1,
         per_page: int = 20,
     ) -> PermitteeListResponse:
@@ -244,9 +244,9 @@ class AsyncPermitteesResource:
     def iterate(
         self,
         *,
-        q: Optional[str] = None,
-        state: Optional[str] = None,
-        is_active: Optional[bool] = None,
+        q: str | None = None,
+        state: str | None = None,
+        is_active: bool | None = None,
         per_page: int = 100,
     ) -> AsyncPaginatedIterator[PermitteeSummary]:
         """Iterate through all matching permittees with automatic pagination.
@@ -355,7 +355,7 @@ class AsyncColaCloud:
         *,
         base_url: str = DEFAULT_BASE_URL,
         timeout: float = DEFAULT_TIMEOUT,
-        http_client: Optional[httpx.AsyncClient] = None,
+        http_client: httpx.AsyncClient | None = None,
     ) -> None:
         if not api_key or not api_key.strip():
             raise ValueError("api_key is required and cannot be empty")
@@ -370,7 +370,7 @@ class AsyncColaCloud:
             self._client = httpx.AsyncClient(timeout=timeout)
             self._owns_client = True
 
-        self._last_rate_limit_info: Optional[RateLimitInfo] = None
+        self._last_rate_limit_info: RateLimitInfo | None = None
 
         # Initialize resource classes
         self.colas = AsyncColasResource(self)
@@ -396,7 +396,7 @@ class AsyncColaCloud:
             "User-Agent": f"colacloud-python/{__version__}",
         }
 
-    def _parse_rate_limit_headers(self, headers: httpx.Headers) -> Optional[RateLimitInfo]:
+    def _parse_rate_limit_headers(self, headers: httpx.Headers) -> RateLimitInfo | None:
         """Parse rate limit info from response headers."""
         try:
             return RateLimitInfo(
@@ -443,8 +443,8 @@ class AsyncColaCloud:
         method: str,
         path: str,
         *,
-        params: Optional[dict[str, Any]] = None,
-        json: Optional[dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Make an async HTTP request to the API.
 
@@ -472,11 +472,11 @@ class AsyncColaCloud:
                 json=json,
             )
         except httpx.ConnectError as e:
-            raise APIConnectionError(f"Failed to connect to {url}: {e}")
+            raise APIConnectionError(f"Failed to connect to {url}: {e}") from e
         except httpx.TimeoutException as e:
-            raise APIConnectionError(f"Request timed out: {e}")
+            raise APIConnectionError(f"Request timed out: {e}") from e
         except httpx.RequestError as e:
-            raise APIConnectionError(f"Request failed: {e}")
+            raise APIConnectionError(f"Request failed: {e}") from e
 
         # Update rate limit info
         self._last_rate_limit_info = self._parse_rate_limit_headers(response.headers)
@@ -501,7 +501,7 @@ class AsyncColaCloud:
         return response.data
 
     @property
-    def rate_limit_info(self) -> Optional[RateLimitInfo]:
+    def rate_limit_info(self) -> RateLimitInfo | None:
         """Get rate limit info from the last API response.
 
         Returns:

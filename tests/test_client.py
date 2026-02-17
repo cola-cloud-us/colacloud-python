@@ -1,18 +1,14 @@
 """Tests for the synchronous ColaCloud client."""
 
-import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
 from colacloud import (
-    APIConnectionError,
     AuthenticationError,
     ColaCloud,
     ColaDetail,
-    ColaSummary,
     NotFoundError,
     PermitteeDetail,
-    PermitteeSummary,
     RateLimitError,
     ServerError,
     ValidationError,
@@ -77,7 +73,7 @@ class TestColasResource:
         httpx_mock.add_response(json=cola_list_response)
 
         with ColaCloud(api_key="test-key") as client:
-            response = client.colas.list(
+            client.colas.list(
                 q="whiskey",
                 product_type="distilled spirits",
                 origin="Kentucky",
@@ -111,9 +107,8 @@ class TestColasResource:
             json={"error": {"message": "COLA 00000000 not found"}},
         )
 
-        with ColaCloud(api_key="test-key") as client:
-            with pytest.raises(NotFoundError) as exc_info:
-                client.colas.get("00000000")
+        with ColaCloud(api_key="test-key") as client, pytest.raises(NotFoundError) as exc_info:
+            client.colas.get("00000000")
 
         assert "not found" in str(exc_info.value)
 
@@ -134,7 +129,7 @@ class TestPermitteesResource:
         httpx_mock.add_response(json=permittee_list_response)
 
         with ColaCloud(api_key="test-key") as client:
-            response = client.permittees.list(
+            client.permittees.list(
                 q="distillery",
                 state="CA",
                 is_active=True,
@@ -176,9 +171,8 @@ class TestBarcodeResource:
             json={"error": {"message": "No COLAs found with barcode 000000000000"}},
         )
 
-        with ColaCloud(api_key="test-key") as client:
-            with pytest.raises(NotFoundError):
-                client.barcode.lookup("000000000000")
+        with ColaCloud(api_key="test-key") as client, pytest.raises(NotFoundError):
+            client.barcode.lookup("000000000000")
 
 
 class TestUsage:
@@ -204,9 +198,11 @@ class TestErrorHandling:
             json={"error": {"message": "Invalid API key"}},
         )
 
-        with ColaCloud(api_key="invalid-key") as client:
-            with pytest.raises(AuthenticationError) as exc_info:
-                client.colas.list()
+        with (
+            ColaCloud(api_key="invalid-key") as client,
+            pytest.raises(AuthenticationError) as exc_info,
+        ):
+            client.colas.list()
 
         assert exc_info.value.status_code == 401
 
@@ -217,9 +213,8 @@ class TestErrorHandling:
             headers={"Retry-After": "60"},
         )
 
-        with ColaCloud(api_key="test-key") as client:
-            with pytest.raises(RateLimitError) as exc_info:
-                client.colas.list()
+        with ColaCloud(api_key="test-key") as client, pytest.raises(RateLimitError) as exc_info:
+            client.colas.list()
 
         assert exc_info.value.status_code == 429
         assert exc_info.value.retry_after == 60
@@ -230,9 +225,8 @@ class TestErrorHandling:
             json={"error": {"message": "Invalid date format"}},
         )
 
-        with ColaCloud(api_key="test-key") as client:
-            with pytest.raises(ValidationError):
-                client.colas.list(approval_date_from="invalid")
+        with ColaCloud(api_key="test-key") as client, pytest.raises(ValidationError):
+            client.colas.list(approval_date_from="invalid")
 
     def test_server_error(self, httpx_mock: HTTPXMock):
         httpx_mock.add_response(
@@ -240,9 +234,8 @@ class TestErrorHandling:
             json={"error": {"message": "Internal server error"}},
         )
 
-        with ColaCloud(api_key="test-key") as client:
-            with pytest.raises(ServerError) as exc_info:
-                client.colas.list()
+        with ColaCloud(api_key="test-key") as client, pytest.raises(ServerError) as exc_info:
+            client.colas.list()
 
         assert exc_info.value.status_code == 500
 

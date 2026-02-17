@@ -1,6 +1,6 @@
 """Custom exceptions for the COLA Cloud SDK."""
 
-from typing import Any, Optional
+from typing import Any
 
 
 class ColaCloudError(Exception):
@@ -9,8 +9,8 @@ class ColaCloudError(Exception):
     def __init__(
         self,
         message: str,
-        status_code: Optional[int] = None,
-        response_body: Optional[dict[str, Any]] = None,
+        status_code: int | None = None,
+        response_body: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
@@ -39,7 +39,7 @@ class AuthenticationError(ColaCloudError):
         self,
         message: str = "Authentication failed. Check your API key.",
         status_code: int = 401,
-        response_body: Optional[dict[str, Any]] = None,
+        response_body: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message, status_code, response_body)
 
@@ -54,8 +54,8 @@ class RateLimitError(ColaCloudError):
         self,
         message: str = "Rate limit exceeded. Please slow down your requests.",
         status_code: int = 429,
-        response_body: Optional[dict[str, Any]] = None,
-        retry_after: Optional[int] = None,
+        response_body: dict[str, Any] | None = None,
+        retry_after: int | None = None,
     ) -> None:
         super().__init__(message, status_code, response_body)
         self.retry_after = retry_after
@@ -80,7 +80,7 @@ class NotFoundError(ColaCloudError):
         self,
         message: str = "Resource not found.",
         status_code: int = 404,
-        response_body: Optional[dict[str, Any]] = None,
+        response_body: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message, status_code, response_body)
 
@@ -97,7 +97,7 @@ class ValidationError(ColaCloudError):
         self,
         message: str = "Invalid request parameters.",
         status_code: int = 400,
-        response_body: Optional[dict[str, Any]] = None,
+        response_body: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message, status_code, response_body)
 
@@ -112,7 +112,7 @@ class ServerError(ColaCloudError):
         self,
         message: str = "Server error. Please try again later.",
         status_code: int = 500,
-        response_body: Optional[dict[str, Any]] = None,
+        response_body: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message, status_code, response_body)
 
@@ -129,7 +129,7 @@ class APIConnectionError(ColaCloudError):
     def __init__(
         self,
         message: str = "Failed to connect to the COLA Cloud API.",
-        status_code: Optional[int] = None,
-        response_body: Optional[dict[str, Any]] = None,
+        status_code: int | None = None,
+        response_body: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message, status_code, response_body)
