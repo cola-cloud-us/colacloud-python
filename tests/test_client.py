@@ -240,33 +240,51 @@ class TestErrorHandling:
         assert exc_info.value.status_code == 500
 
 
-class TestRateLimitHeaders:
-    """Tests for rate limit header parsing."""
+class TestQuotaHeaders:
+    """Tests for quota header parsing."""
 
-    def test_rate_limit_info_parsed(self, httpx_mock: HTTPXMock, cola_list_response):
+    def test_detail_view_quota_parsed(self, httpx_mock: HTTPXMock, cola_list_response):
         httpx_mock.add_response(
             json=cola_list_response,
             headers={
-                "X-RateLimit-Limit": "60",
-                "X-RateLimit-Remaining": "55",
-                "X-RateLimit-Reset": "1704067200",
-                "X-RateLimit-Monthly-Limit": "10000",
-                "X-RateLimit-Monthly-Remaining": "9500",
+                "X-Detail-Views-Limit": "200",
+                "X-Detail-Views-Remaining": "150",
+                "X-Quota-Reset": "1704067200",
             },
         )
 
         with ColaCloud(api_key="test-key") as client:
             client.colas.list()
-            rate_limit = client.rate_limit_info
+            quota = client.quota_info
 
-        assert rate_limit is not None
-        assert rate_limit.limit == 60
-        assert rate_limit.remaining == 55
-        assert rate_limit.monthly_limit == 10000
+        assert quota is not None
+        assert quota.meter == "detail_views"
+        assert quota.limit == 200
+        assert quota.remaining == 150
+        assert quota.reset == 1704067200
 
-    def test_rate_limit_info_before_request(self):
+    def test_list_record_quota_parsed(self, httpx_mock: HTTPXMock, cola_list_response):
+        httpx_mock.add_response(
+            json=cola_list_response,
+            headers={
+                "X-List-Records-Limit": "10000",
+                "X-List-Records-Remaining": "9500",
+                "X-Quota-Reset": "1704067200",
+            },
+        )
+
         with ColaCloud(api_key="test-key") as client:
-            assert client.rate_limit_info is None
+            client.colas.list()
+            quota = client.quota_info
+
+        assert quota is not None
+        assert quota.meter == "list_records"
+        assert quota.limit == 10000
+        assert quota.remaining == 9500
+
+    def test_quota_info_before_request(self):
+        with ColaCloud(api_key="test-key") as client:
+            assert client.quota_info is None
 
 
 class TestPagination:

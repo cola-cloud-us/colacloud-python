@@ -67,7 +67,7 @@ from .models import (
     PermitteeDetailResponse,
     PermitteeListResponse,
     PermitteeSummary,
-    RateLimitInfo,
+    QuotaInfo,
     UsageInfo,
     UsageResponse,
 )
@@ -102,7 +102,7 @@ __all__ = [
     "PermitteeListResponse",
     "PermitteeSummary",
     "RateLimitError",
-    "RateLimitInfo",
+    "QuotaInfo",
     "ServerError",
     "UsageInfo",
     "UsageResponse",

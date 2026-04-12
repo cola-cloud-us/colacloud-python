@@ -10,18 +10,19 @@ class Pagination(BaseModel):
 
     page: int
     per_page: int
-    total: int
-    pages: int
+    total: int | None = None
+    pages: int | None = None
+    has_more: bool | None = None
+    mode: str | None = None
 
 
-class RateLimitInfo(BaseModel):
-    """Rate limit information from response headers."""
+class QuotaInfo(BaseModel):
+    """Quota information parsed from response headers."""
 
-    limit: int = Field(description="Maximum requests per minute")
-    remaining: int = Field(description="Remaining requests in current minute window")
-    reset: int = Field(description="Unix timestamp when the rate limit resets")
-    monthly_limit: int = Field(description="Maximum requests per month")
-    monthly_remaining: int = Field(description="Remaining requests this month")
+    meter: str = Field(description="Which meter: 'detail_views' or 'list_records'")
+    limit: int = Field(description="Quota limit for the current billing period")
+    remaining: int = Field(description="Remaining quota in the current billing period")
+    reset: int = Field(description="Unix timestamp when quotas reset (first of next month)")
 
     model_config = ConfigDict(extra="ignore")
 

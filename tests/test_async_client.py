@@ -197,25 +197,24 @@ class TestAsyncPagination:
 
 
 @pytest.mark.asyncio
-class TestAsyncRateLimitHeaders:
-    """Tests for async rate limit header parsing."""
+class TestAsyncQuotaHeaders:
+    """Tests for async quota header parsing."""
 
-    async def test_rate_limit_info_parsed(self, httpx_mock: HTTPXMock, cola_list_response):
+    async def test_detail_view_quota_parsed(self, httpx_mock: HTTPXMock, cola_list_response):
         httpx_mock.add_response(
             json=cola_list_response,
             headers={
-                "X-RateLimit-Limit": "60",
-                "X-RateLimit-Remaining": "55",
-                "X-RateLimit-Reset": "1704067200",
-                "X-RateLimit-Monthly-Limit": "10000",
-                "X-RateLimit-Monthly-Remaining": "9500",
+                "X-Detail-Views-Limit": "200",
+                "X-Detail-Views-Remaining": "150",
+                "X-Quota-Reset": "1704067200",
             },
         )
 
         async with AsyncColaCloud(api_key="test-key") as client:
             await client.colas.list()
-            rate_limit = client.rate_limit_info
+            quota = client.quota_info
 
-        assert rate_limit is not None
-        assert rate_limit.limit == 60
-        assert rate_limit.remaining == 55
+        assert quota is not None
+        assert quota.meter == "detail_views"
+        assert quota.limit == 200
+        assert quota.remaining == 150

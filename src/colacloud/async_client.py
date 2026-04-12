@@ -26,7 +26,7 @@ from .models import (
     PermitteeDetailResponse,
     PermitteeListResponse,
     PermitteeSummary,
-    RateLimitInfo,
+    QuotaInfo,
     UsageInfo,
     UsageResponse,
 )
@@ -337,7 +337,7 @@ class AsyncColaCloud:
 
                 # Check API usage
                 usage = await client.get_usage()
-                print(f"Used {usage.requests_used} of {usage.monthly_limit} requests")
+                print(f"Detail views: {usage.detail_views.used} / {usage.detail_views.limit}")
 
         asyncio.run(main())
         ```
@@ -370,7 +370,7 @@ class AsyncColaCloud:
             self._client = httpx.AsyncClient(timeout=timeout)
             self._owns_client = True
 
-        self._last_rate_limit_info: RateLimitInfo | None = None
+        self._last_quota_info: QuotaInfo | None = None
 
         # Initialize resource classes
         self.colas = AsyncColasResource(self)
@@ -396,15 +396,31 @@ class AsyncColaCloud:
             "User-Agent": f"colacloud-python/{__version__}",
         }
 
-    def _parse_rate_limit_headers(self, headers: httpx.Headers) -> RateLimitInfo | None:
-        """Parse rate limit info from response headers."""
+    def _parse_quota_headers(self, headers: httpx.Headers) -> QuotaInfo | None:
+        """Parse quota info from response headers."""
+        reset = headers.get("X-Quota-Reset")
+        if not reset:
+            return None
+
+        # Try detail views first, then list records
+        limit = headers.get("X-Detail-Views-Limit")
+        remaining = headers.get("X-Detail-Views-Remaining")
+        meter = "detail_views"
+
+        if limit is None:
+            limit = headers.get("X-List-Records-Limit")
+            remaining = headers.get("X-List-Records-Remaining")
+            meter = "list_records"
+
+        if limit is None or remaining is None:
+            return None
+
         try:
-            return RateLimitInfo(
-                limit=int(headers.get("X-RateLimit-Limit", 0)),
-                remaining=int(headers.get("X-RateLimit-Remaining", 0)),
-                reset=int(headers.get("X-RateLimit-Reset", 0)),
-                monthly_limit=int(headers.get("X-RateLimit-Monthly-Limit", 0)),
-                monthly_remaining=int(headers.get("X-RateLimit-Monthly-Remaining", 0)),
+            return QuotaInfo(
+                meter=meter,
+                limit=int(limit),
+                remaining=int(remaining),
+                reset=int(reset),
             )
         except (ValueError, TypeError):
             return None
@@ -478,8 +494,8 @@ class AsyncColaCloud:
         except httpx.RequestError as e:
             raise APIConnectionError(f"Request failed: {e}") from e
 
-        # Update rate limit info
-        self._last_rate_limit_info = self._parse_rate_limit_headers(response.headers)
+        # Update quota info
+        self._last_quota_info = self._parse_quota_headers(response.headers)
 
         if not response.is_success:
             self._handle_error(response)
@@ -501,10 +517,10 @@ class AsyncColaCloud:
         return response.data
 
     @property
-    def rate_limit_info(self) -> RateLimitInfo | None:
-        """Get rate limit info from the last API response.
+    def quota_info(self) -> QuotaInfo | None:
+        """Get quota info from the last API response.
 
         Returns:
-            RateLimitInfo if available, None if no requests have been made yet.
+            QuotaInfo if available, None if no requests have been made yet.
         """
-        return self._last_rate_limit_info
+        return self._last_quota_info

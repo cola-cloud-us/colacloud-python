@@ -16,7 +16,7 @@ from colacloud.models import (
     PermitteeDetailResponse,
     PermitteeListResponse,
     PermitteeSummary,
-    RateLimitInfo,
+    QuotaInfo,
     UsageInfo,
     UsageResponse,
 )
@@ -35,24 +35,22 @@ class TestPagination:
         assert pagination.pages == 5
 
 
-class TestRateLimitInfo:
-    """Tests for RateLimitInfo model."""
+class TestQuotaInfo:
+    """Tests for QuotaInfo model."""
 
-    def test_rate_limit_info_from_dict(self):
+    def test_quota_info_from_dict(self):
         data = {
-            "limit": 60,
-            "remaining": 55,
+            "meter": "detail_views",
+            "limit": 200,
+            "remaining": 150,
             "reset": 1704067200,
-            "monthly_limit": 10000,
-            "monthly_remaining": 9500,
         }
-        rate_limit = RateLimitInfo.model_validate(data)
+        quota = QuotaInfo.model_validate(data)
 
-        assert rate_limit.limit == 60
-        assert rate_limit.remaining == 55
-        assert rate_limit.reset == 1704067200
-        assert rate_limit.monthly_limit == 10000
-        assert rate_limit.monthly_remaining == 9500
+        assert quota.meter == "detail_views"
+        assert quota.limit == 200
+        assert quota.remaining == 150
+        assert quota.reset == 1704067200
 
 
 class TestColaSummary:

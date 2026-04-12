@@ -65,8 +65,12 @@ class PaginatedIterator(Iterator[T]):
         self._current_page += 1
 
         # Check if this was the last page
-        if self._pagination.page >= self._pagination.pages or len(self._items) == 0:
+        if len(self._items) == 0:
             self._exhausted = True
+        elif self._pagination.has_more is not None:
+            self._exhausted = not self._pagination.has_more
+        elif self._pagination.pages is not None:
+            self._exhausted = self._pagination.page >= self._pagination.pages
 
         # If no items in this page, we're done
         if len(self._items) == 0:
@@ -141,8 +145,12 @@ class AsyncPaginatedIterator(AsyncIterator[T]):
         self._current_page += 1
 
         # Check if this was the last page
-        if self._pagination.page >= self._pagination.pages or len(self._items) == 0:
+        if len(self._items) == 0:
             self._exhausted = True
+        elif self._pagination.has_more is not None:
+            self._exhausted = not self._pagination.has_more
+        elif self._pagination.pages is not None:
+            self._exhausted = self._pagination.page >= self._pagination.pages
 
         # If no items in this page, we're done
         if len(self._items) == 0:
