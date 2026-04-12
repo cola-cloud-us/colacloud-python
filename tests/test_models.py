@@ -68,10 +68,9 @@ class TestColaSummary:
         assert cola.class_name == "Whiskey"
         assert cola.origin_name == "Kentucky"
         assert cola.permit_number == "KY-I-12345"
-        assert cola.abv == 40.0
-        assert cola.volume == 750.0
-        assert cola.image_count == 2
         assert cola.approval_date == date(2024, 1, 15)
+        assert cola.image_count == 2
+        assert cola.has_barcode is True
 
     def test_cola_summary_optional_fields(self):
         data = {
@@ -84,8 +83,7 @@ class TestColaSummary:
 
         assert cola.ttb_id == "12345678"
         assert cola.product_name is None
-        assert cola.abv is None
-        assert cola.main_image_url is None
+        assert cola.has_barcode is False
 
 
 class TestColaDetail:
@@ -199,9 +197,11 @@ class TestUsageInfo:
         usage = UsageInfo.model_validate(sample_usage)
 
         assert usage.tier == "starter"
-        assert usage.monthly_limit == 10000
-        assert usage.requests_used == 500
-        assert usage.requests_remaining == 9500
+        assert usage.detail_views.used == 100
+        assert usage.detail_views.limit == 2000
+        assert usage.detail_views.remaining == 1900
+        assert usage.list_records.used == 5000
+        assert usage.list_records.limit == 100000
         assert usage.per_minute_limit == 60
 
 

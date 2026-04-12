@@ -117,7 +117,7 @@ class TestAsyncUsage:
             usage = await client.get_usage()
 
         assert usage.tier == "starter"
-        assert usage.requests_used == 500
+        assert usage.detail_views.used == 100
 
 
 @pytest.mark.asyncio

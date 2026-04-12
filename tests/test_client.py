@@ -185,8 +185,8 @@ class TestUsage:
             usage = client.get_usage()
 
         assert usage.tier == "starter"
-        assert usage.monthly_limit == 10000
-        assert usage.requests_used == 500
+        assert usage.detail_views.used == 100
+        assert usage.list_records.limit == 100000
 
 
 class TestErrorHandling:

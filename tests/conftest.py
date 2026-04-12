@@ -11,24 +11,25 @@ SAMPLE_COLA_SUMMARY = {
     "product_type": "distilled spirits",
     "class_name": "Whiskey",
     "origin_name": "Kentucky",
-    "domestic_or_imported": "domestic",
     "permit_number": "KY-I-12345",
+    "approval_date": "2024-01-15",
+    "image_count": 2,
+    "has_barcode": True,
+}
+
+SAMPLE_COLA_DETAIL = {
+    **SAMPLE_COLA_SUMMARY,
+    "domestic_or_imported": "domestic",
     "application_type": "label approval",
     "application_status": "approved",
     "application_date": "2024-01-01",
-    "approval_date": "2024-01-15",
     "expiration_date": "2027-01-15",
     "abv": 40.0,
     "volume": 750.0,
     "volume_unit": "ml",
     "llm_category": "Bourbon",
     "llm_category_path": "Whiskey > Bourbon",
-    "image_count": 2,
     "main_image_url": "https://example.com/image.jpg",
-}
-
-SAMPLE_COLA_DETAIL = {
-    **SAMPLE_COLA_SUMMARY,
     "class_id": "CLS123",
     "origin_id": "ORG456",
     "latest_update_date": "2024-01-15",
@@ -131,10 +132,9 @@ SAMPLE_BARCODE_LOOKUP = {
 
 SAMPLE_USAGE = {
     "tier": "starter",
-    "monthly_limit": 10000,
     "current_period": "2024-01",
-    "requests_used": 500,
-    "requests_remaining": 9500,
+    "detail_views": {"used": 100, "limit": 2000, "remaining": 1900},
+    "list_records": {"used": 5000, "limit": 100000, "remaining": 95000},
     "per_minute_limit": 60,
 }
 

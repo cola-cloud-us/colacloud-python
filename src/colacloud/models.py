@@ -71,20 +71,10 @@ class ColaSummary(BaseModel):
     product_type: str
     class_name: str | None = None
     origin_name: str | None = None
-    domestic_or_imported: str | None = None
     permit_number: str
-    application_type: str | None = None
-    application_status: str | None = None
-    application_date: date | None = None
     approval_date: date | None = None
-    expiration_date: date | None = None
-    abv: float | None = None
-    volume: float | None = None
-    volume_unit: str | None = None
-    llm_category: str | None = None
-    llm_category_path: str | None = None
     image_count: int = 0
-    main_image_url: str | None = None
+    has_barcode: bool = False
 
     model_config = ConfigDict(extra="ignore")
 
@@ -212,14 +202,23 @@ class BarcodeLookupResult(BaseModel):
 # Usage Models
 
 
+class UsageQuota(BaseModel):
+    """Usage quota for a single meter."""
+
+    used: int
+    limit: int
+    remaining: int
+
+    model_config = ConfigDict(extra="ignore")
+
+
 class UsageInfo(BaseModel):
     """API usage statistics."""
 
     tier: str
-    monthly_limit: int
     current_period: str
-    requests_used: int
-    requests_remaining: int
+    detail_views: UsageQuota
+    list_records: UsageQuota
     per_minute_limit: int
 
     model_config = ConfigDict(extra="ignore")

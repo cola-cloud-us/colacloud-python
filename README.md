@@ -45,7 +45,7 @@ client.close()
 - **Sync and Async Clients**: Use `ColaCloud` for synchronous code or `AsyncColaCloud` for async/await
 - **Type Hints**: Full type annotations with Pydantic models
 - **Automatic Pagination**: Iterate through large result sets effortlessly
-- **Rate Limit Handling**: Access rate limit info from response headers
+- **Quota Tracking**: Access usage quotas for detail views and list records
 - **Custom Exceptions**: Specific exceptions for different error types
 
 ## Synchronous Client
@@ -225,22 +225,10 @@ for cola in result.colas:
 usage = client.get_usage()
 
 print(f"Tier: {usage.tier}")
-print(f"Monthly limit: {usage.monthly_limit}")
-print(f"Requests used: {usage.requests_used}")
-print(f"Remaining: {usage.requests_remaining}")
-print(f"Per-minute limit: {usage.per_minute_limit}")
-```
-
-### Rate Limit Info
-
-```python
-# After any request, access rate limit headers
-client.colas.list(q="test")
-rate_limit = client.rate_limit_info
-
-if rate_limit:
-    print(f"Remaining this minute: {rate_limit.remaining}")
-    print(f"Monthly remaining: {rate_limit.monthly_remaining}")
+print(f"Period: {usage.current_period}")
+print(f"Detail views: {usage.detail_views.used} / {usage.detail_views.limit}")
+print(f"List records: {usage.list_records.used} / {usage.list_records.limit}")
+print(f"Burst limit: {usage.per_minute_limit} req/min")
 ```
 
 ## Error Handling
@@ -332,8 +320,8 @@ uv run pytest
 uv run pytest --cov=src/colacloud
 
 # Format code
-uv run black .
-uv run isort .
+uv run ruff format .
+uv run ruff check --fix .
 
 # Type checking
 uv run mypy src/colacloud
