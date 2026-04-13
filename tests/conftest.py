@@ -138,6 +138,57 @@ SAMPLE_USAGE = {
     "per_minute_limit": 60,
 }
 
+SAMPLE_PROCESSING_TIME = {
+    "commodity": "Wine",
+    "average_days": 12,
+    "median_days": 10,
+    "period": "2024-Q1",
+}
+
+SAMPLE_PROCESSING_TIME_FORMULA = {
+    "formula_type": "distilled spirits",
+    "commodity": "Whiskey",
+    "average_days": 18,
+    "median_days": 15,
+    "period": "2024-Q1",
+}
+
+SAMPLE_PROCESSING_TIME_REGISTRATION = {
+    "category": "Beverage",
+    "application_type": "new",
+    "average_days": 8,
+    "median_days": 6,
+    "period": "2024-Q1",
+}
+
+SAMPLE_PRODUCTION_REPORT = {
+    "commodity": "Wine",
+    "year": 2024,
+    "month": 1,
+    "report_type": "production",
+    "statistical_group": "Table Wine",
+    "value": 1500000,
+    "unit": "gallons",
+}
+
+SAMPLE_AVA = {
+    "id": "napa-valley",
+    "name": "Napa Valley",
+    "state": "CA",
+    "region": "North Coast",
+    "established_year": 1981,
+}
+
+SAMPLE_AVA_DETAIL = {
+    "id": "napa-valley",
+    "name": "Napa Valley",
+    "state": "CA",
+    "region": "North Coast",
+    "established_year": 1981,
+    "counties": ["Napa"],
+    "acreage": 485000,
+}
+
 
 @pytest.fixture
 def sample_cola_summary():
@@ -225,3 +276,90 @@ def barcode_lookup_response(sample_barcode_lookup):
 def usage_response(sample_usage):
     """Return a sample usage response."""
     return {"data": sample_usage}
+
+
+@pytest.fixture
+def sample_processing_time():
+    """Return a sample processing time record dict."""
+    return SAMPLE_PROCESSING_TIME.copy()
+
+
+@pytest.fixture
+def sample_processing_time_formula():
+    """Return a sample formula processing time record dict."""
+    return SAMPLE_PROCESSING_TIME_FORMULA.copy()
+
+
+@pytest.fixture
+def sample_processing_time_registration():
+    """Return a sample registration processing time record dict."""
+    return SAMPLE_PROCESSING_TIME_REGISTRATION.copy()
+
+
+@pytest.fixture
+def sample_production_report():
+    """Return a sample production report record dict."""
+    return SAMPLE_PRODUCTION_REPORT.copy()
+
+
+@pytest.fixture
+def sample_ava():
+    """Return a sample AVA record dict."""
+    return SAMPLE_AVA.copy()
+
+
+@pytest.fixture
+def sample_ava_detail():
+    """Return a sample AVA detail dict."""
+    return SAMPLE_AVA_DETAIL.copy()
+
+
+@pytest.fixture
+def processing_times_response(sample_processing_time):
+    """Return a sample processing times response."""
+    return {
+        "data": [sample_processing_time],
+        "meta": {"total": 1},
+    }
+
+
+@pytest.fixture
+def processing_times_formula_response(sample_processing_time_formula):
+    """Return a sample formula processing times response."""
+    return {
+        "data": [sample_processing_time_formula],
+        "meta": {"total": 1},
+    }
+
+
+@pytest.fixture
+def processing_times_registration_response(sample_processing_time_registration):
+    """Return a sample registration processing times response."""
+    return {
+        "data": [sample_processing_time_registration],
+        "meta": {"total": 1},
+    }
+
+
+@pytest.fixture
+def production_reports_response(sample_production_report):
+    """Return a sample production reports response."""
+    return {
+        "data": [sample_production_report],
+        "meta": {"total": 1, "page": 1, "per_page": 100, "has_more": False},
+    }
+
+
+@pytest.fixture
+def avas_response(sample_ava):
+    """Return a sample AVAs list response."""
+    return {
+        "data": [sample_ava],
+        "meta": {"total": 1},
+    }
+
+
+@pytest.fixture
+def ava_detail_response(sample_ava_detail):
+    """Return a sample AVA detail response."""
+    return {"data": sample_ava_detail}

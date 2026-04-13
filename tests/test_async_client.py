@@ -10,6 +10,7 @@ from colacloud import (
     NotFoundError,
     PermitteeDetail,
     RateLimitError,
+    ReferenceDataResponse,
 )
 
 
@@ -218,3 +219,158 @@ class TestAsyncQuotaHeaders:
         assert quota.meter == "detail_views"
         assert quota.limit == 200
         assert quota.remaining == 150
+
+
+@pytest.mark.asyncio
+class TestAsyncProcessingTimesResource:
+    """Tests for the async processing times resource."""
+
+    async def test_list_processing_times(self, httpx_mock: HTTPXMock, processing_times_response):
+        httpx_mock.add_response(json=processing_times_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            response = await client.processing_times.list()
+
+        assert isinstance(response, ReferenceDataResponse)
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+
+    async def test_list_processing_times_with_commodity(
+        self, httpx_mock: HTTPXMock, processing_times_response
+    ):
+        httpx_mock.add_response(json=processing_times_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            await client.processing_times.list(commodity="Wine")
+
+        request = httpx_mock.get_request()
+        assert "commodity=Wine" in str(request.url)
+
+    async def test_formula_processing_times(
+        self, httpx_mock: HTTPXMock, processing_times_formula_response
+    ):
+        httpx_mock.add_response(json=processing_times_formula_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            response = await client.processing_times.formula()
+
+        assert len(response.data) == 1
+
+    async def test_formula_processing_times_with_filters(
+        self, httpx_mock: HTTPXMock, processing_times_formula_response
+    ):
+        httpx_mock.add_response(json=processing_times_formula_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            await client.processing_times.formula(
+                formula_type="distilled spirits", commodity="Whiskey"
+            )
+
+        request = httpx_mock.get_request()
+        assert "formula_type=distilled" in str(request.url)
+        assert "commodity=Whiskey" in str(request.url)
+
+    async def test_registration_processing_times(
+        self, httpx_mock: HTTPXMock, processing_times_registration_response
+    ):
+        httpx_mock.add_response(json=processing_times_registration_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            response = await client.processing_times.registration()
+
+        assert len(response.data) == 1
+
+    async def test_registration_processing_times_with_filters(
+        self, httpx_mock: HTTPXMock, processing_times_registration_response
+    ):
+        httpx_mock.add_response(json=processing_times_registration_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            await client.processing_times.registration(category="Beverage", application_type="new")
+
+        request = httpx_mock.get_request()
+        assert "category=Beverage" in str(request.url)
+        assert "application_type=new" in str(request.url)
+
+
+@pytest.mark.asyncio
+class TestAsyncProductionReportsResource:
+    """Tests for the async production reports resource."""
+
+    async def test_list_production_reports(
+        self, httpx_mock: HTTPXMock, production_reports_response
+    ):
+        httpx_mock.add_response(json=production_reports_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            response = await client.production_reports.list()
+
+        assert isinstance(response, ReferenceDataResponse)
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+        assert response.meta.has_more is False
+
+    async def test_list_production_reports_with_filters(
+        self, httpx_mock: HTTPXMock, production_reports_response
+    ):
+        httpx_mock.add_response(json=production_reports_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            await client.production_reports.list(
+                commodity="Wine",
+                year=2024,
+                month=1,
+                report_type="production",
+                statistical_group="Table Wine",
+                page=2,
+                per_page=50,
+            )
+
+        request = httpx_mock.get_request()
+        assert "commodity=Wine" in str(request.url)
+        assert "year=2024" in str(request.url)
+        assert "month=1" in str(request.url)
+
+
+@pytest.mark.asyncio
+class TestAsyncAVAsResource:
+    """Tests for the async AVAs resource."""
+
+    async def test_list_avas(self, httpx_mock: HTTPXMock, avas_response):
+        httpx_mock.add_response(json=avas_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            response = await client.avas.list()
+
+        assert isinstance(response, ReferenceDataResponse)
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+
+    async def test_list_avas_with_filters(self, httpx_mock: HTTPXMock, avas_response):
+        httpx_mock.add_response(json=avas_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            await client.avas.list(state="CA", q="Napa")
+
+        request = httpx_mock.get_request()
+        assert "state=CA" in str(request.url)
+        assert "q=Napa" in str(request.url)
+
+    async def test_get_ava(self, httpx_mock: HTTPXMock, ava_detail_response):
+        httpx_mock.add_response(json=ava_detail_response)
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            ava = await client.avas.get("napa-valley")
+
+        assert ava["name"] == "Napa Valley"
+        assert ava["state"] == "CA"
+
+    async def test_get_ava_not_found(self, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            status_code=404,
+            json={"error": {"message": "AVA not-real not found"}},
+        )
+
+        async with AsyncColaCloud(api_key="test-key") as client:
+            with pytest.raises(NotFoundError):
+                await client.avas.get("not-real")

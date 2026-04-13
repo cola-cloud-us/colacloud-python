@@ -11,12 +11,15 @@ from colacloud.models import (
     ColaImage,
     ColaListResponse,
     ColaSummary,
+    MetaInfo,
     Pagination,
     PermitteeDetail,
     PermitteeDetailResponse,
     PermitteeListResponse,
     PermitteeSummary,
     QuotaInfo,
+    ReferenceDataDetailResponse,
+    ReferenceDataResponse,
     UsageInfo,
     UsageResponse,
 )
@@ -239,3 +242,50 @@ class TestResponseModels:
         response = UsageResponse.model_validate(usage_response)
 
         assert response.data.tier == "starter"
+
+
+class TestMetaInfo:
+    """Tests for MetaInfo model."""
+
+    def test_meta_info_from_dict(self):
+        data = {"total": 42}
+        meta = MetaInfo.model_validate(data)
+
+        assert meta.total == 42
+        assert meta.page is None
+        assert meta.per_page is None
+        assert meta.has_more is None
+
+    def test_meta_info_with_pagination(self):
+        data = {"total": 100, "page": 1, "per_page": 50, "has_more": True}
+        meta = MetaInfo.model_validate(data)
+
+        assert meta.total == 100
+        assert meta.page == 1
+        assert meta.per_page == 50
+        assert meta.has_more is True
+
+
+class TestReferenceDataResponse:
+    """Tests for reference data response models."""
+
+    def test_reference_data_response(self, processing_times_response):
+        response = ReferenceDataResponse.model_validate(processing_times_response)
+
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+
+    def test_reference_data_response_with_pagination(self, production_reports_response):
+        response = ReferenceDataResponse.model_validate(production_reports_response)
+
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+        assert response.meta.page == 1
+        assert response.meta.per_page == 100
+        assert response.meta.has_more is False
+
+    def test_reference_data_detail_response(self, ava_detail_response):
+        response = ReferenceDataDetailResponse.model_validate(ava_detail_response)
+
+        assert response.data["name"] == "Napa Valley"
+        assert response.data["state"] == "CA"

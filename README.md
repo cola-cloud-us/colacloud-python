@@ -334,5 +334,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Links
 
 - [COLA Cloud Website](https://colacloud.us)
-- [API Documentation](https://colacloud.us/docs/api)
+- [API Documentation](https://docs.colacloud.us/api-reference)
 - [GitHub Repository](https://github.com/cola-cloud-us/colacloud-python)

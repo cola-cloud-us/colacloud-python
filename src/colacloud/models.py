@@ -278,3 +278,52 @@ class UsageResponse(BaseModel):
     data: UsageInfo
 
     model_config = ConfigDict(extra="ignore")
+
+
+# Reference Data Models
+
+
+class MetaInfo(BaseModel):
+    """Meta information for reference data endpoints."""
+
+    total: int
+    page: int | None = None
+    per_page: int | None = None
+    has_more: bool | None = None
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class ProcessingTimeRecord(BaseModel):
+    """A single processing time record."""
+
+    model_config = ConfigDict(extra="allow")
+
+
+class ProductionReportRecord(BaseModel):
+    """A single production report record."""
+
+    model_config = ConfigDict(extra="allow")
+
+
+class AVARecord(BaseModel):
+    """A single American Viticultural Area (AVA) record."""
+
+    model_config = ConfigDict(extra="allow")
+
+
+class ReferenceDataResponse(BaseModel):
+    """Response from reference data endpoints (processing-times, avas, production-reports)."""
+
+    data: list[dict]
+    meta: MetaInfo
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class ReferenceDataDetailResponse(BaseModel):
+    """Response from reference data detail endpoints (e.g., avas/{id})."""
+
+    data: dict
+
+    model_config = ConfigDict(extra="ignore")

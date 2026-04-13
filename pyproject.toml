@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "colacloud"
-version = "0.3.0"
+version = "0.4.0"
 description = "Python SDK for the COLA Cloud API - Access the TTB COLA Registry of alcohol product label approvals"
 readme = "README.md"
 license = "MIT"
@@ -55,7 +55,7 @@ dev = [
 
 [project.urls]
 Homepage = "https://colacloud.us"
-Documentation = "https://colacloud.us/docs/api"
+Documentation = "https://docs.colacloud.us/api-reference"
 Repository = "https://github.com/cola-cloud-us/colacloud-python"
 Issues = "https://github.com/cola-cloud-us/colacloud-python/issues"
 

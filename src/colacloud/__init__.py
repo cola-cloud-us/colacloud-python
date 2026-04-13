@@ -61,6 +61,7 @@ from .models import (
     ColaImage,
     ColaListResponse,
     ColaSummary,
+    MetaInfo,
     PaginatedResponse,
     Pagination,
     PermitteeDetail,
@@ -68,6 +69,8 @@ from .models import (
     PermitteeListResponse,
     PermitteeSummary,
     QuotaInfo,
+    ReferenceDataDetailResponse,
+    ReferenceDataResponse,
     UsageInfo,
     UsageResponse,
 )
@@ -81,19 +84,15 @@ __all__ = [
     "BarcodeLookupResponse",
     "BarcodeLookupResult",
     "ColaBarcode",
-    # Clients
     "ColaCloud",
-    # Exceptions
     "ColaCloudError",
     "ColaDetail",
     "ColaDetailResponse",
     "ColaImage",
-    # Response types
     "ColaListResponse",
-    # Models
     "ColaSummary",
+    "MetaInfo",
     "NotFoundError",
-    # Iterators
     "PaginatedIterator",
     "PaginatedResponse",
     "Pagination",
@@ -101,12 +100,13 @@ __all__ = [
     "PermitteeDetailResponse",
     "PermitteeListResponse",
     "PermitteeSummary",
-    "RateLimitError",
     "QuotaInfo",
+    "RateLimitError",
+    "ReferenceDataDetailResponse",
+    "ReferenceDataResponse",
     "ServerError",
     "UsageInfo",
     "UsageResponse",
     "ValidationError",
-    # Version
     "__version__",
 ]

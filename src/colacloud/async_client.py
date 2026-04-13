@@ -27,6 +27,8 @@ from .models import (
     PermitteeListResponse,
     PermitteeSummary,
     QuotaInfo,
+    ReferenceDataDetailResponse,
+    ReferenceDataResponse,
     UsageInfo,
     UsageResponse,
 )
@@ -309,6 +311,202 @@ class AsyncBarcodeResource:
         return response.data
 
 
+class AsyncProcessingTimesResource:
+    """Async resource for interacting with processing times endpoints."""
+
+    def __init__(self, client: "AsyncColaCloud") -> None:
+        self._client = client
+
+    async def list(
+        self,
+        *,
+        commodity: str | None = None,
+    ) -> ReferenceDataResponse:
+        """Get COLA processing times.
+
+        Args:
+            commodity: Filter by commodity type.
+
+        Returns:
+            ReferenceDataResponse containing data and meta info.
+
+        Raises:
+            AuthenticationError: If the API key is invalid.
+            ColaCloudError: For other API errors.
+        """
+        params: dict[str, Any] = {}
+
+        if commodity:
+            params["commodity"] = commodity
+
+        data = await self._client._request("GET", "/processing-times", params=params)
+        return ReferenceDataResponse.model_validate(data)
+
+    async def formula(
+        self,
+        *,
+        formula_type: str | None = None,
+        commodity: str | None = None,
+    ) -> ReferenceDataResponse:
+        """Get formula processing times.
+
+        Args:
+            formula_type: Filter by formula type.
+            commodity: Filter by commodity type.
+
+        Returns:
+            ReferenceDataResponse containing data and meta info.
+
+        Raises:
+            AuthenticationError: If the API key is invalid.
+            ColaCloudError: For other API errors.
+        """
+        params: dict[str, Any] = {}
+
+        if formula_type:
+            params["formula_type"] = formula_type
+        if commodity:
+            params["commodity"] = commodity
+
+        data = await self._client._request("GET", "/processing-times/formula", params=params)
+        return ReferenceDataResponse.model_validate(data)
+
+    async def registration(
+        self,
+        *,
+        category: str | None = None,
+        application_type: str | None = None,
+    ) -> ReferenceDataResponse:
+        """Get registration processing times.
+
+        Args:
+            category: Filter by category.
+            application_type: Filter by application type.
+
+        Returns:
+            ReferenceDataResponse containing data and meta info.
+
+        Raises:
+            AuthenticationError: If the API key is invalid.
+            ColaCloudError: For other API errors.
+        """
+        params: dict[str, Any] = {}
+
+        if category:
+            params["category"] = category
+        if application_type:
+            params["application_type"] = application_type
+
+        data = await self._client._request("GET", "/processing-times/registration", params=params)
+        return ReferenceDataResponse.model_validate(data)
+
+
+class AsyncProductionReportsResource:
+    """Async resource for interacting with production reports endpoints."""
+
+    def __init__(self, client: "AsyncColaCloud") -> None:
+        self._client = client
+
+    async def list(
+        self,
+        *,
+        commodity: str | None = None,
+        year: int | None = None,
+        month: int | None = None,
+        report_type: str | None = None,
+        statistical_group: str | None = None,
+        page: int = 1,
+        per_page: int = 100,
+    ) -> ReferenceDataResponse:
+        """Get production reports.
+
+        Args:
+            commodity: Filter by commodity type.
+            year: Filter by year.
+            month: Filter by month.
+            report_type: Filter by report type.
+            statistical_group: Filter by statistical group.
+            page: Page number (default: 1).
+            per_page: Results per page (default: 100, max: 100).
+
+        Returns:
+            ReferenceDataResponse containing data and meta info.
+
+        Raises:
+            AuthenticationError: If the API key is invalid.
+            ColaCloudError: For other API errors.
+        """
+        params: dict[str, Any] = {"page": page, "per_page": min(per_page, 100)}
+
+        if commodity:
+            params["commodity"] = commodity
+        if year is not None:
+            params["year"] = year
+        if month is not None:
+            params["month"] = month
+        if report_type:
+            params["report_type"] = report_type
+        if statistical_group:
+            params["statistical_group"] = statistical_group
+
+        data = await self._client._request("GET", "/production-reports", params=params)
+        return ReferenceDataResponse.model_validate(data)
+
+
+class AsyncAVAsResource:
+    """Async resource for interacting with AVA endpoints."""
+
+    def __init__(self, client: "AsyncColaCloud") -> None:
+        self._client = client
+
+    async def list(
+        self,
+        *,
+        state: str | None = None,
+        q: str | None = None,
+    ) -> ReferenceDataResponse:
+        """List American Viticultural Areas.
+
+        Args:
+            state: Filter by state (two-letter code, e.g., "CA", "OR").
+            q: Search by AVA name (partial match).
+
+        Returns:
+            ReferenceDataResponse containing data and meta info.
+
+        Raises:
+            AuthenticationError: If the API key is invalid.
+            ColaCloudError: For other API errors.
+        """
+        params: dict[str, Any] = {}
+
+        if state:
+            params["state"] = state
+        if q:
+            params["q"] = q
+
+        data = await self._client._request("GET", "/avas", params=params)
+        return ReferenceDataResponse.model_validate(data)
+
+    async def get(self, ava_id: str) -> dict:
+        """Get a single AVA by ID.
+
+        Args:
+            ava_id: The AVA identifier.
+
+        Returns:
+            Dict with AVA details.
+
+        Raises:
+            NotFoundError: If the AVA doesn't exist.
+            AuthenticationError: If the API key is invalid.
+            ColaCloudError: For other API errors.
+        """
+        data = await self._client._request("GET", f"/avas/{ava_id}")
+        response = ReferenceDataDetailResponse.model_validate(data)
+        return response.data
+
+
 class AsyncColaCloud:
     """Asynchronous client for the COLA Cloud API.
 
@@ -376,6 +574,9 @@ class AsyncColaCloud:
         self.colas = AsyncColasResource(self)
         self.permittees = AsyncPermitteesResource(self)
         self.barcode = AsyncBarcodeResource(self)
+        self.processing_times = AsyncProcessingTimesResource(self)
+        self.production_reports = AsyncProductionReportsResource(self)
+        self.avas = AsyncAVAsResource(self)
 
     async def __aenter__(self) -> "AsyncColaCloud":
         return self

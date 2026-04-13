@@ -328,3 +328,163 @@ class TestPagination:
 
         assert len(permittees) == 1
         assert permittees[0].permit_number == "KY-I-12345"
+
+
+class TestProcessingTimesResource:
+    """Tests for the processing times resource."""
+
+    def test_list_processing_times(self, httpx_mock: HTTPXMock, processing_times_response):
+        httpx_mock.add_response(json=processing_times_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            response = client.processing_times.list()
+
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+
+    def test_list_processing_times_with_commodity(
+        self, httpx_mock: HTTPXMock, processing_times_response
+    ):
+        httpx_mock.add_response(json=processing_times_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            client.processing_times.list(commodity="Wine")
+
+        request = httpx_mock.get_request()
+        assert "commodity=Wine" in str(request.url)
+
+    def test_formula_processing_times(
+        self, httpx_mock: HTTPXMock, processing_times_formula_response
+    ):
+        httpx_mock.add_response(json=processing_times_formula_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            response = client.processing_times.formula()
+
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+
+    def test_formula_processing_times_with_filters(
+        self, httpx_mock: HTTPXMock, processing_times_formula_response
+    ):
+        httpx_mock.add_response(json=processing_times_formula_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            client.processing_times.formula(formula_type="distilled spirits", commodity="Whiskey")
+
+        request = httpx_mock.get_request()
+        assert "formula_type=distilled" in str(request.url)
+        assert "commodity=Whiskey" in str(request.url)
+
+    def test_registration_processing_times(
+        self, httpx_mock: HTTPXMock, processing_times_registration_response
+    ):
+        httpx_mock.add_response(json=processing_times_registration_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            response = client.processing_times.registration()
+
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+
+    def test_registration_processing_times_with_filters(
+        self, httpx_mock: HTTPXMock, processing_times_registration_response
+    ):
+        httpx_mock.add_response(json=processing_times_registration_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            client.processing_times.registration(category="Beverage", application_type="new")
+
+        request = httpx_mock.get_request()
+        assert "category=Beverage" in str(request.url)
+        assert "application_type=new" in str(request.url)
+
+
+class TestProductionReportsResource:
+    """Tests for the production reports resource."""
+
+    def test_list_production_reports(self, httpx_mock: HTTPXMock, production_reports_response):
+        httpx_mock.add_response(json=production_reports_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            response = client.production_reports.list()
+
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+        assert response.meta.has_more is False
+
+    def test_list_production_reports_with_filters(
+        self, httpx_mock: HTTPXMock, production_reports_response
+    ):
+        httpx_mock.add_response(json=production_reports_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            client.production_reports.list(
+                commodity="Wine",
+                year=2024,
+                month=1,
+                report_type="production",
+                statistical_group="Table Wine",
+                page=2,
+                per_page=50,
+            )
+
+        request = httpx_mock.get_request()
+        assert "commodity=Wine" in str(request.url)
+        assert "year=2024" in str(request.url)
+        assert "month=1" in str(request.url)
+        assert "report_type=production" in str(request.url)
+        assert "page=2" in str(request.url)
+        assert "per_page=50" in str(request.url)
+
+    def test_list_production_reports_caps_per_page(
+        self, httpx_mock: HTTPXMock, production_reports_response
+    ):
+        httpx_mock.add_response(json=production_reports_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            client.production_reports.list(per_page=500)
+
+        request = httpx_mock.get_request()
+        assert "per_page=100" in str(request.url)
+
+
+class TestAVAsResource:
+    """Tests for the AVAs resource."""
+
+    def test_list_avas(self, httpx_mock: HTTPXMock, avas_response):
+        httpx_mock.add_response(json=avas_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            response = client.avas.list()
+
+        assert len(response.data) == 1
+        assert response.meta.total == 1
+
+    def test_list_avas_with_filters(self, httpx_mock: HTTPXMock, avas_response):
+        httpx_mock.add_response(json=avas_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            client.avas.list(state="CA", q="Napa")
+
+        request = httpx_mock.get_request()
+        assert "state=CA" in str(request.url)
+        assert "q=Napa" in str(request.url)
+
+    def test_get_ava(self, httpx_mock: HTTPXMock, ava_detail_response):
+        httpx_mock.add_response(json=ava_detail_response)
+
+        with ColaCloud(api_key="test-key") as client:
+            ava = client.avas.get("napa-valley")
+
+        assert ava["name"] == "Napa Valley"
+        assert ava["state"] == "CA"
+
+    def test_get_ava_not_found(self, httpx_mock: HTTPXMock):
+        httpx_mock.add_response(
+            status_code=404,
+            json={"error": {"message": "AVA not-real not found"}},
+        )
+
+        with ColaCloud(api_key="test-key") as client, pytest.raises(NotFoundError):
+            client.avas.get("not-real")
