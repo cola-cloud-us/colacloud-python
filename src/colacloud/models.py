@@ -173,9 +173,9 @@ class PermitteeSummary(BaseModel):
     permittee_type: str | None = None
     is_active: bool
     active_reason: str | None = None
-    colas: int | None = None
-    colas_approved: int | None = None
-    last_cola_application_date: date | None = None
+    colas: int | None = None  # Paid plans only (starter/pro)
+    colas_approved: int | None = None  # Paid plans only (starter/pro)
+    last_cola_application_date: date | None = None  # Paid plans only (starter/pro)
 
     model_config = ConfigDict(extra="ignore")
 
