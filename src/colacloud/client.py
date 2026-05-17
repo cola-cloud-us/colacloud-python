@@ -488,7 +488,7 @@ class AVAsResource:
         data = self._client._request("GET", "/avas", params=params)
         return ReferenceDataResponse.model_validate(data)
 
-    def get(self, ava_id: str) -> dict:
+    def get(self, ava_id: str) -> dict[str, Any]:
         """Get a single AVA by ID.
 
         Args:

@@ -1,6 +1,7 @@
 """Pydantic models for COLA Cloud API responses."""
 
 from datetime import date
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -173,9 +174,9 @@ class PermitteeSummary(BaseModel):
     permittee_type: str | None = None
     is_active: bool
     active_reason: str | None = None
-    colas: int | None = None  # Paid plans only (starter/pro)
-    colas_approved: int | None = None  # Paid plans only (starter/pro)
-    last_cola_application_date: date | None = None  # Paid plans only (starter/pro)
+    colas: int | None = None
+    colas_approved: int | None = None
+    last_cola_application_date: date | None = None
 
     model_config = ConfigDict(extra="ignore")
 
@@ -315,7 +316,7 @@ class AVARecord(BaseModel):
 class ReferenceDataResponse(BaseModel):
     """Response from reference data endpoints (processing-times, avas, production-reports)."""
 
-    data: list[dict]
+    data: list[dict[str, Any]]
     meta: MetaInfo
 
     model_config = ConfigDict(extra="ignore")
@@ -324,6 +325,6 @@ class ReferenceDataResponse(BaseModel):
 class ReferenceDataDetailResponse(BaseModel):
     """Response from reference data detail endpoints (e.g., avas/{id})."""
 
-    data: dict
+    data: dict[str, Any]
 
     model_config = ConfigDict(extra="ignore")
