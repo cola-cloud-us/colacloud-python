@@ -104,14 +104,22 @@ asyncio.run(main())
 
 ```python
 response = client.colas.list(
-    q="search query",              # Full-text search
+    q="search query",              # Brand, product, permit, applicant/company, etc.
     product_type="wine",           # malt beverage, wine, distilled spirits
+    category="Wine",               # Beer, Wine, Liquor
+    derived_subcategory="Wine > Red Wine",
     origin="France",               # Country or state
     brand_name="Chateau",          # Partial match
+    permit_number="CA-I-12345",
+    barcode_value="012345678905",
     approval_date_from="2024-01-01",
     approval_date_to="2024-12-31",
     abv_min=10.0,
     abv_max=20.0,
+    volume_unit="milliliters",     # Required with volume_min/volume_max
+    volume_min=375,
+    volume_max=750,
+    container_type="bottle,can",
     page=1,
     per_page=20                    # Max 100
 )
