@@ -49,26 +49,46 @@ class AsyncColasResource:
         *,
         q: str | None = None,
         product_type: str | None = None,
+        category: str | None = None,
+        derived_subcategory: str | None = None,
         origin: str | None = None,
+        domestic_or_imported: str | None = None,
+        status: str | None = None,
         brand_name: str | None = None,
+        permit_number: str | None = None,
+        barcode_value: str | None = None,
         approval_date_from: str | None = None,
         approval_date_to: str | None = None,
         abv_min: float | None = None,
         abv_max: float | None = None,
+        volume_unit: str | None = None,
+        volume_min: float | None = None,
+        volume_max: float | None = None,
+        container_type: str | None = None,
         page: int = 1,
         per_page: int = 20,
     ) -> ColaListResponse:
         """List and search COLAs with pagination.
 
         Args:
-            q: Full-text search query.
-            product_type: Filter by product type.
+            q: Text search query, including applicant/company names.
+            product_type: Filter by one or more TTB product types.
+            category: Filter by derived top-level category.
+            derived_subcategory: Filter by derived category path prefix.
             origin: Filter by country/state of origin.
+            domestic_or_imported: Filter by domestic/imported origin.
+            status: Filter by application status.
             brand_name: Filter by brand name (partial match).
+            permit_number: Filter by exact permit number.
+            barcode_value: Filter by exact main barcode value.
             approval_date_from: Filter by minimum approval date (YYYY-MM-DD).
             approval_date_to: Filter by maximum approval date (YYYY-MM-DD).
             abv_min: Filter by minimum ABV percentage.
             abv_max: Filter by maximum ABV percentage.
+            volume_unit: Filter by volume unit. Required with volume_min/volume_max.
+            volume_min: Filter by minimum package volume.
+            volume_max: Filter by maximum package volume.
+            container_type: Filter by one or more derived container types.
             page: Page number (default: 1).
             per_page: Results per page (default: 20, max: 100).
 
@@ -87,10 +107,22 @@ class AsyncColasResource:
             params["q"] = q
         if product_type:
             params["product_type"] = product_type
+        if category:
+            params["category"] = category
+        if derived_subcategory:
+            params["derived_subcategory"] = derived_subcategory
         if origin:
             params["origin"] = origin
+        if domestic_or_imported:
+            params["domestic_or_imported"] = domestic_or_imported
+        if status:
+            params["status"] = status
         if brand_name:
             params["brand_name"] = brand_name
+        if permit_number:
+            params["permit_number"] = permit_number
+        if barcode_value:
+            params["barcode_value"] = barcode_value
         if approval_date_from:
             params["approval_date_from"] = approval_date_from
         if approval_date_to:
@@ -99,6 +131,14 @@ class AsyncColasResource:
             params["abv_min"] = abv_min
         if abv_max is not None:
             params["abv_max"] = abv_max
+        if volume_unit:
+            params["volume_unit"] = volume_unit
+        if volume_min is not None:
+            params["volume_min"] = volume_min
+        if volume_max is not None:
+            params["volume_max"] = volume_max
+        if container_type:
+            params["container_type"] = container_type
 
         data = await self._client._request("GET", "/colas", params=params)
         return ColaListResponse.model_validate(data)
@@ -127,12 +167,22 @@ class AsyncColasResource:
         *,
         q: str | None = None,
         product_type: str | None = None,
+        category: str | None = None,
+        derived_subcategory: str | None = None,
         origin: str | None = None,
+        domestic_or_imported: str | None = None,
+        status: str | None = None,
         brand_name: str | None = None,
+        permit_number: str | None = None,
+        barcode_value: str | None = None,
         approval_date_from: str | None = None,
         approval_date_to: str | None = None,
         abv_min: float | None = None,
         abv_max: float | None = None,
+        volume_unit: str | None = None,
+        volume_min: float | None = None,
+        volume_max: float | None = None,
+        container_type: str | None = None,
         per_page: int = 100,
     ) -> AsyncPaginatedIterator[ColaSummary]:
         """Iterate through all matching COLAs with automatic pagination.
@@ -141,14 +191,24 @@ class AsyncColasResource:
         pages as needed.
 
         Args:
-            q: Full-text search query.
-            product_type: Filter by product type.
+            q: Text search query, including applicant/company names.
+            product_type: Filter by one or more TTB product types.
+            category: Filter by derived top-level category.
+            derived_subcategory: Filter by derived category path prefix.
             origin: Filter by country/state of origin.
+            domestic_or_imported: Filter by domestic/imported origin.
+            status: Filter by application status.
             brand_name: Filter by brand name (partial match).
+            permit_number: Filter by exact permit number.
+            barcode_value: Filter by exact main barcode value.
             approval_date_from: Filter by minimum approval date (YYYY-MM-DD).
             approval_date_to: Filter by maximum approval date (YYYY-MM-DD).
             abv_min: Filter by minimum ABV percentage.
             abv_max: Filter by maximum ABV percentage.
+            volume_unit: Filter by volume unit. Required with volume_min/volume_max.
+            volume_min: Filter by minimum package volume.
+            volume_max: Filter by maximum package volume.
+            container_type: Filter by one or more derived container types.
             per_page: Results per page (default: 100, max: 100).
 
         Yields:
@@ -165,12 +225,22 @@ class AsyncColasResource:
             response = await self.list(
                 q=q,
                 product_type=product_type,
+                category=category,
+                derived_subcategory=derived_subcategory,
                 origin=origin,
+                domestic_or_imported=domestic_or_imported,
+                status=status,
                 brand_name=brand_name,
+                permit_number=permit_number,
+                barcode_value=barcode_value,
                 approval_date_from=approval_date_from,
                 approval_date_to=approval_date_to,
                 abv_min=abv_min,
                 abv_max=abv_max,
+                volume_unit=volume_unit,
+                volume_min=volume_min,
+                volume_max=volume_max,
+                container_type=container_type,
                 page=page,
                 per_page=per_page,
             )

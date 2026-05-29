@@ -75,13 +75,23 @@ class TestColasResource:
         with ColaCloud(api_key="test-key") as client:
             client.colas.list(
                 q="whiskey",
-                product_type="distilled spirits",
+                product_type="distilled spirits,wine",
+                category="Liquor,Wine",
+                derived_subcategory="Liquor > Whiskey",
                 origin="Kentucky",
+                domestic_or_imported="domestic",
+                status="approved",
                 brand_name="Test",
+                permit_number="KY-I-12345",
+                barcode_value="012345678905",
                 approval_date_from="2024-01-01",
                 approval_date_to="2024-12-31",
                 abv_min=35.0,
                 abv_max=50.0,
+                volume_unit="milliliters",
+                volume_min=375,
+                volume_max=750,
+                container_type="bottle,can",
                 page=1,
                 per_page=50,
             )
@@ -90,6 +100,15 @@ class TestColasResource:
         assert "q=whiskey" in str(request.url)
         assert "product_type=distilled" in str(request.url)
         assert "abv_min=35" in str(request.url)
+        assert "category=Liquor%2CWine" in str(request.url)
+        assert "derived_subcategory=Liquor+%3E+Whiskey" in str(request.url)
+        assert "domestic_or_imported=domestic" in str(request.url)
+        assert "permit_number=KY-I-12345" in str(request.url)
+        assert "barcode_value=012345678905" in str(request.url)
+        assert "volume_unit=milliliters" in str(request.url)
+        assert "volume_min=375" in str(request.url)
+        assert "volume_max=750" in str(request.url)
+        assert "container_type=bottle%2Ccan" in str(request.url)
 
     def test_get_cola(self, httpx_mock: HTTPXMock, cola_detail_response):
         httpx_mock.add_response(json=cola_detail_response)
