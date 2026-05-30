@@ -19,6 +19,11 @@ import time
 results: list[tuple[bool, str]] = []
 
 
+def format_total(total: int | None) -> str:
+    """Format optional pagination totals returned by search-backed endpoints."""
+    return str(total) if total is not None else "unknown"
+
+
 def check(name: str, fn):
     """Run a single check. Calls fn(), expects it to return or raise."""
     start = time.monotonic()
@@ -68,12 +73,13 @@ def main():
         nonlocal ttb_id
         resp = client.colas.list(per_page=1)
         assert resp.data, "expected at least one COLA"
-        assert resp.pagination.total > 0, "expected total > 0"
+        assert resp.pagination.page == 1, "expected page 1"
+        assert resp.pagination.per_page == 1, "expected per_page 1"
         cola = resp.data[0]
         assert cola.ttb_id, "expected ttb_id on COLA"
         assert cola.brand_name, "expected brand_name on COLA"
         ttb_id = cola.ttb_id
-        return f"total={resp.pagination.total}, first={ttb_id}"
+        return f"total={format_total(resp.pagination.total)}, first={ttb_id}"
 
     check("colas.list(per_page=1)", test_colas_list)
 
@@ -115,7 +121,7 @@ def main():
         p = resp.data[0]
         assert p.permit_number
         permit_number = p.permit_number
-        return f"total={resp.pagination.total}, first={permit_number}"
+        return f"total={format_total(resp.pagination.total)}, first={permit_number}"
 
     check("permittees.list(per_page=1)", test_permittees_list)
 
@@ -133,19 +139,28 @@ def main():
     def test_usage():
         usage = client.get_usage()
         assert usage.tier
-        assert usage.monthly_limit > 0
-        return f"tier={usage.tier}, used={usage.requests_used}/{usage.monthly_limit}"
+        assert usage.current_period
+        assert usage.detail_views.limit >= 0
+        assert usage.list_records.limit >= 0
+        assert usage.per_minute_limit > 0
+        return (
+            f"tier={usage.tier}, "
+            f"detail_views={usage.detail_views.used}/{usage.detail_views.limit}, "
+            f"list_records={usage.list_records.used}/{usage.list_records.limit}"
+        )
 
     check("get_usage()", test_usage)
 
-    # --- rate_limit_info ---
-    def test_rate_limit():
-        info = client.rate_limit_info
-        assert info is not None, "expected rate limit info after requests"
-        assert info.limit > 0
-        return f"limit={info.limit}/min, remaining={info.remaining}"
+    # --- quota_info ---
+    def test_quota_info():
+        info = client.quota_info
+        if info is None:
+            return "not returned by API"
+        assert info.limit >= 0
+        assert info.remaining >= 0
+        return f"meter={info.meter}, limit={info.limit}, remaining={info.remaining}"
 
-    check("rate_limit_info", test_rate_limit)
+    check("quota_info", test_quota_info)
 
     # --- Summary ---
     client.close()
