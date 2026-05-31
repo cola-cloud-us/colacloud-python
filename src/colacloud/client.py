@@ -65,6 +65,7 @@ class ColasResource:
         volume_min: float | None = None,
         volume_max: float | None = None,
         container_type: str | None = None,
+        sort: str | None = None,
         page: int = 1,
         per_page: int = 20,
     ) -> ColaListResponse:
@@ -89,6 +90,7 @@ class ColasResource:
             volume_min: Filter by minimum package volume.
             volume_max: Filter by maximum package volume.
             container_type: Filter by one or more derived container types.
+            sort: Sort order, such as "approval_date_desc" or "relevance_desc".
             page: Page number (default: 1).
             per_page: Results per page (default: 20, max: 100).
 
@@ -139,6 +141,8 @@ class ColasResource:
             params["volume_max"] = volume_max
         if container_type:
             params["container_type"] = container_type
+        if sort:
+            params["sort"] = sort
 
         data = self._client._request("GET", "/colas", params=params)
         return ColaListResponse.model_validate(data)
@@ -183,6 +187,7 @@ class ColasResource:
         volume_min: float | None = None,
         volume_max: float | None = None,
         container_type: str | None = None,
+        sort: str | None = None,
         per_page: int = 100,
     ) -> PaginatedIterator[ColaSummary]:
         """Iterate through all matching COLAs with automatic pagination.
@@ -209,6 +214,7 @@ class ColasResource:
             volume_min: Filter by minimum package volume.
             volume_max: Filter by maximum package volume.
             container_type: Filter by one or more derived container types.
+            sort: Sort order, such as "approval_date_desc" or "relevance_desc".
             per_page: Results per page (default: 100, max: 100).
 
         Yields:
@@ -241,6 +247,7 @@ class ColasResource:
                 volume_min=volume_min,
                 volume_max=volume_max,
                 container_type=container_type,
+                sort=sort,
                 page=page,
                 per_page=per_page,
             )
@@ -261,6 +268,7 @@ class PermitteesResource:
         q: str | None = None,
         state: str | None = None,
         is_active: bool | None = None,
+        sort: str | None = None,
         page: int = 1,
         per_page: int = 20,
     ) -> PermitteeListResponse:
@@ -270,6 +278,7 @@ class PermitteesResource:
             q: Search by company name (partial match).
             state: Filter by state (two-letter code, e.g., "CA", "NY").
             is_active: Filter by active status.
+            sort: Sort order, such as "colas_desc" or "relevance_desc".
             page: Page number (default: 1).
             per_page: Results per page (default: 20, max: 100).
 
@@ -290,6 +299,8 @@ class PermitteesResource:
             params["state"] = state
         if is_active is not None:
             params["is_active"] = "true" if is_active else "false"
+        if sort:
+            params["sort"] = sort
 
         data = self._client._request("GET", "/permittees", params=params)
         return PermitteeListResponse.model_validate(data)
@@ -319,6 +330,7 @@ class PermitteesResource:
         q: str | None = None,
         state: str | None = None,
         is_active: bool | None = None,
+        sort: str | None = None,
         per_page: int = 100,
     ) -> PaginatedIterator[PermitteeSummary]:
         """Iterate through all matching permittees with automatic pagination.
@@ -330,6 +342,7 @@ class PermitteesResource:
             q: Search by company name (partial match).
             state: Filter by state (two-letter code).
             is_active: Filter by active status.
+            sort: Sort order, such as "colas_desc" or "relevance_desc".
             per_page: Results per page (default: 100, max: 100).
 
         Yields:
@@ -347,6 +360,7 @@ class PermitteesResource:
                 q=q,
                 state=state,
                 is_active=is_active,
+                sort=sort,
                 page=page,
                 per_page=per_page,
             )

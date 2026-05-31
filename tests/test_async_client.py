@@ -45,10 +45,11 @@ class TestAsyncColasResource:
         httpx_mock.add_response(json=cola_list_response)
 
         async with AsyncColaCloud(api_key="test-key") as client:
-            response = await client.colas.list(q="bourbon")
+            response = await client.colas.list(q="bourbon", sort="relevance_desc")
 
         assert len(response.data) == 1
         assert response.data[0].ttb_id == "12345678"
+        assert "sort=relevance_desc" in str(httpx_mock.get_request().url)
 
     async def test_get_cola(self, httpx_mock: HTTPXMock, cola_detail_response):
         httpx_mock.add_response(json=cola_detail_response)
@@ -78,10 +79,11 @@ class TestAsyncPermitteesResource:
         httpx_mock.add_response(json=permittee_list_response)
 
         async with AsyncColaCloud(api_key="test-key") as client:
-            response = await client.permittees.list(state="KY")
+            response = await client.permittees.list(state="KY", sort="company_name_asc")
 
         assert len(response.data) == 1
         assert response.data[0].permit_number == "KY-I-12345"
+        assert "sort=company_name_asc" in str(httpx_mock.get_request().url)
 
     async def test_get_permittee(self, httpx_mock: HTTPXMock, permittee_detail_response):
         httpx_mock.add_response(json=permittee_detail_response)
@@ -173,12 +175,13 @@ class TestAsyncPagination:
 
         async with AsyncColaCloud(api_key="test-key") as client:
             colas = []
-            async for cola in client.colas.iterate(q="test", per_page=1):
+            async for cola in client.colas.iterate(q="test", sort="relevance_desc", per_page=1):
                 colas.append(cola)
 
         assert len(colas) == 2
         assert colas[0].ttb_id == "12345678"
         assert colas[1].ttb_id == "87654321"
+        assert "sort=relevance_desc" in str(httpx_mock.get_requests()[0].url)
 
     async def test_iterate_permittees(self, httpx_mock: HTTPXMock, sample_permittee_summary):
         httpx_mock.add_response(
@@ -190,11 +193,14 @@ class TestAsyncPagination:
 
         async with AsyncColaCloud(api_key="test-key") as client:
             permittees = []
-            async for permittee in client.permittees.iterate(state="KY", per_page=1):
+            async for permittee in client.permittees.iterate(
+                state="KY", sort="company_name_asc", per_page=1
+            ):
                 permittees.append(permittee)
 
         assert len(permittees) == 1
         assert permittees[0].permit_number == "KY-I-12345"
+        assert "sort=company_name_asc" in str(httpx_mock.get_request().url)
 
 
 @pytest.mark.asyncio

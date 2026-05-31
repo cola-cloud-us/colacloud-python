@@ -120,6 +120,7 @@ response = client.colas.list(
     volume_min=375,
     volume_max=750,
     container_type="bottle,can",
+    sort="relevance_desc",         # Or approval_date_desc
     page=1,
     per_page=20                    # Max 100
 )
@@ -184,6 +185,7 @@ response = client.permittees.list(
     q="distillery",    # Search by company name
     state="CA",        # Two-letter state code
     is_active=True,    # Active permit status
+    sort="relevance_desc",
     page=1,
     per_page=20
 )

@@ -92,6 +92,7 @@ class TestColasResource:
                 volume_min=375,
                 volume_max=750,
                 container_type="bottle,can",
+                sort="relevance_desc",
                 page=1,
                 per_page=50,
             )
@@ -109,6 +110,7 @@ class TestColasResource:
         assert "volume_min=375" in str(request.url)
         assert "volume_max=750" in str(request.url)
         assert "container_type=bottle%2Ccan" in str(request.url)
+        assert "sort=relevance_desc" in str(request.url)
 
     def test_get_cola(self, httpx_mock: HTTPXMock, cola_detail_response):
         httpx_mock.add_response(json=cola_detail_response)
@@ -152,6 +154,7 @@ class TestPermitteesResource:
                 q="distillery",
                 state="CA",
                 is_active=True,
+                sort="relevance_desc",
                 page=2,
                 per_page=50,
             )
@@ -160,6 +163,7 @@ class TestPermitteesResource:
         assert "q=distillery" in str(request.url)
         assert "state=CA" in str(request.url)
         assert "is_active=true" in str(request.url)
+        assert "sort=relevance_desc" in str(request.url)
 
     def test_get_permittee(self, httpx_mock: HTTPXMock, permittee_detail_response):
         httpx_mock.add_response(json=permittee_detail_response)
@@ -328,11 +332,12 @@ class TestPagination:
         )
 
         with ColaCloud(api_key="test-key") as client:
-            colas = list(client.colas.iterate(q="test", per_page=1))
+            colas = list(client.colas.iterate(q="test", sort="relevance_desc", per_page=1))
 
         assert len(colas) == 2
         assert colas[0].ttb_id == "12345678"
         assert colas[1].ttb_id == "87654321"
+        assert "sort=relevance_desc" in str(httpx_mock.get_requests()[0].url)
 
     def test_iterate_permittees(self, httpx_mock: HTTPXMock, sample_permittee_summary):
         httpx_mock.add_response(
@@ -343,10 +348,13 @@ class TestPagination:
         )
 
         with ColaCloud(api_key="test-key") as client:
-            permittees = list(client.permittees.iterate(state="KY", per_page=1))
+            permittees = list(
+                client.permittees.iterate(state="KY", sort="company_name_asc", per_page=1)
+            )
 
         assert len(permittees) == 1
         assert permittees[0].permit_number == "KY-I-12345"
+        assert "sort=company_name_asc" in str(httpx_mock.get_request().url)
 
 
 class TestProcessingTimesResource:
