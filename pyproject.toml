@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "COLA Cloud", email = "support@colacloud.us" }
+    { name = "COLA Cloud", email = "help@colacloud.us" }
 ]
 keywords = [
     "cola",

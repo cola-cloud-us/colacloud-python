@@ -2,6 +2,8 @@
 
 Official Python SDK for the [COLA Cloud API](https://colacloud.us) - Access the TTB COLA Registry of alcohol product label approvals.
 
+COLA Cloud is an independent service that turns public TTB label approvals into searchable, enriched data. An approval record is not a unique product or proof of current retail availability. See the [product-data workflow and source limits](https://colacloud.us/product-enrichment) and [California wine recipe](https://colacloud.us/data/california-wine).
+
 ## Installation
 
 ```bash
@@ -22,19 +24,23 @@ from colacloud import ColaCloud
 # Initialize the client
 client = ColaCloud(api_key="your-api-key")
 
-# Search COLAs
-colas = client.colas.list(q="bourbon", product_type="distilled spirits")
+# One page of California-origin wine approvals in a fixed date scope
+colas = client.colas.list(
+    product_type="wine",
+    origin="California",
+    approval_date_from="2026-08-01",
+    approval_date_to="2026-08-31",
+    per_page=1,
+)
+print(f"Returned {len(colas.data)} records on this page")
 for cola in colas.data:
     print(f"{cola.brand_name}: {cola.product_name}")
 
-# Get a single COLA by TTB ID
-cola = client.colas.get("12345678")
-print(f"ABV: {cola.abv}%")
-print(f"Images: {len(cola.images)}")
-
-# Iterate through all results with automatic pagination
-for cola in client.colas.iterate(q="whiskey"):
-    print(cola.ttb_id)
+# Retrieve a real ID returned by search; an empty page is valid
+if colas.data:
+    cola = client.colas.get(colas.data[0].ttb_id)
+    print(f"ABV: {cola.abv}%")  # May be None
+    print(f"Images: {len(cola.images)}")
 
 # Don't forget to close when done
 client.close()
@@ -63,10 +69,10 @@ with ColaCloud(api_key="your-api-key") as client:
         abv_min=12.0,
         abv_max=15.0,
         page=1,
-        per_page=50
+        per_page=50,
     )
 
-    print(f"Found {response.pagination.total} COLAs")
+    print(f"Returned {len(response.data)} records on this page")
     for cola in response.data:
         print(f"- {cola.brand_name}: {cola.product_name}")
 
@@ -84,6 +90,7 @@ finally:
 import asyncio
 from colacloud import AsyncColaCloud
 
+
 async def main():
     async with AsyncColaCloud(api_key="your-api-key") as client:
         # Search COLAs
@@ -92,6 +99,7 @@ async def main():
         # Async iteration
         async for cola in client.colas.iterate(q="whiskey"):
             print(cola.ttb_id)
+
 
 asyncio.run(main())
 ```
@@ -102,27 +110,29 @@ asyncio.run(main())
 
 #### List/Search COLAs
 
+The following is a filter reference, not a known matching query: filters are combined. `origin` matches a recorded state/country name, not all domestic records. Use the quickstart for a small verified query.
+
 ```python
 response = client.colas.list(
-    q="search query",              # Brand, product, permit, applicant/company, etc.
-    product_type="wine",           # malt beverage, wine, distilled spirits
-    category="Wine",               # Beer, Wine, Liquor
+    q="search query",  # Brand, product, permit, applicant/company, etc.
+    product_type="wine",  # malt beverage, wine, distilled spirits
+    category="Wine",  # Beer, Wine, Liquor
     derived_subcategory="Wine > Red Wine",
-    origin="France",               # Country or state
-    brand_name="Chateau",          # Partial match
+    origin="France",  # Country or state
+    brand_name="Chateau",  # Partial match
     permit_number="CA-I-12345",
     barcode_value="012345678905",
     approval_date_from="2024-01-01",
     approval_date_to="2024-12-31",
     abv_min=10.0,
     abv_max=20.0,
-    volume_unit="milliliters",     # Required with volume_min/volume_max
+    volume_unit="milliliters",  # Required with volume_min/volume_max
     volume_min=375,
     volume_max=750,
     container_type="bottle,can",
-    sort="relevance_desc",         # Or approval_date_desc
+    sort="relevance_desc",  # Or approval_date_desc
     page=1,
-    per_page=20                    # Max 100
+    per_page=20,  # Max 100
 )
 
 # Access results
@@ -130,14 +140,19 @@ for cola in response.data:
     print(cola.ttb_id, cola.brand_name)
 
 # Pagination info
-print(f"Page {response.pagination.page} of {response.pagination.pages}")
-print(f"Total results: {response.pagination.total}")
+print(f"Returned {len(response.data)} records")
+if response.pagination.total is not None:
+    print(f"Total results: {response.pagination.total}")
+print(f"More pages available: {response.pagination.has_more}")
 ```
 
 #### Get Single COLA
 
 ```python
-cola = client.colas.get("12345678")
+matches = client.colas.list(product_type="wine", origin="California", per_page=1)
+if not matches.data:
+    raise SystemExit("No matches in the query scope")
+cola = client.colas.get(matches.data[0].ttb_id)
 
 # Basic info
 print(cola.ttb_id)
@@ -162,17 +177,20 @@ print(cola.llm_tasting_note_flavors)
 
 #### Iterate All Results
 
+Iteration covers the matching query scope, not the entire registry. Without explicit dates the API defaults to the last 365 days. Totals and page counts may be null; the SDK iterator handles continuation. Date eligibility can fall back from approval date to application/latest-update date. Each page uses your plan allowance.
+
 ```python
 # Automatically handles pagination
-for cola in client.colas.iterate(q="bourbon", per_page=100):
+for cola in client.colas.iterate(
+    q="bourbon",
+    per_page=100,
+    approval_date_from="2026-08-01",
+    approval_date_to="2026-08-31",
+):
     print(cola.ttb_id)
 
 # With filters
-for cola in client.colas.iterate(
-    product_type="distilled spirits",
-    origin="Kentucky",
-    abv_min=40.0
-):
+for cola in client.colas.iterate(product_type="distilled spirits", origin="Kentucky", abv_min=40.0):
     process_cola(cola)
 ```
 
@@ -182,12 +200,12 @@ for cola in client.colas.iterate(
 
 ```python
 response = client.permittees.list(
-    q="distillery",    # Search by company name
-    state="CA",        # Two-letter state code
-    is_active=True,    # Active permit status
+    q="distillery",  # Search by company name
+    state="CA",  # Two-letter state code
+    is_active=True,  # Active permit status
     sort="relevance_desc",
     page=1,
-    per_page=20
+    per_page=20,
 )
 
 for permittee in response.data:
@@ -197,7 +215,10 @@ for permittee in response.data:
 #### Get Single Permittee
 
 ```python
-permittee = client.permittees.get("CA-I-12345")
+matches = client.permittees.list(state="CA", per_page=1)
+if not matches.data:
+    raise SystemExit("No permittees found")
+permittee = client.permittees.get(matches.data[0].permit_number)
 
 print(permittee.company_name)
 print(permittee.company_state)
@@ -218,8 +239,10 @@ for permittee in client.permittees.iterate(state="NY"):
 
 ### Barcode Lookup
 
+Barcode lookup returns matching approval records from decoded label images. Codes may be missing or repeated across approvals; review the candidate records before treating a match as a product identity. The example uses a code from the existing whiskey evaluation sample.
+
 ```python
-result = client.barcode.lookup("012345678901")
+result = client.barcode.lookup("869357000220")
 
 print(f"Barcode: {result.barcode_value}")
 print(f"Type: {result.barcode_type}")
@@ -256,8 +279,10 @@ from colacloud import (
 
 client = ColaCloud(api_key="your-api-key")
 
+ttb_id = input("TTB ID returned by search: ").strip()
 try:
-    cola = client.colas.get("12345678")
+    # Replace with an ID returned by your search
+    cola = client.colas.get(ttb_id)
 except AuthenticationError:
     print("Invalid API key")
 except NotFoundError:
@@ -339,10 +364,12 @@ uv run mypy src/colacloud
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License covers this SDK; see [LICENSE](LICENSE). Data and label artwork have separate rights and terms.
 
 ## Links
 
 - [COLA Cloud Website](https://colacloud.us)
 - [API Documentation](https://docs.colacloud.us/api-reference)
 - [GitHub Repository](https://github.com/cola-cloud-us/colacloud-python)
+
+Public support: help@colacloud.us
