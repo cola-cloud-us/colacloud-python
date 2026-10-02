@@ -239,7 +239,7 @@ for permittee in client.permittees.iterate(state="NY"):
 
 ### Barcode Lookup
 
-Barcode lookup returns matching approval records from decoded label images. Codes may be missing or repeated across approvals; review the candidate records before treating a match as a product identity. The example uses a code from the existing whiskey evaluation sample.
+Barcode lookup returns matching approval records from decoded label images. Codes may be missing or repeated across approvals; review the candidate records before treating a match as a product identity. The UPC example uses a code from the [existing whiskey evaluation sample](https://colacloud.us/data-packs/whiskey).
 
 ```python
 result = client.barcode.lookup("869357000220")
