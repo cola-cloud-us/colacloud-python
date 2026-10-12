@@ -74,6 +74,8 @@ class ColaSummary(BaseModel):
     class_name: str | None = None
     origin_name: str | None = None
     permit_number: str
+    # Explicit "Used on label" name from the form; null is not proof of absence.
+    applicant_trade_name: str | None = None
     approval_date: date | None = None
     image_count: int = 0
     has_barcode: bool = False
@@ -95,6 +97,8 @@ class ColaDetail(BaseModel):
     origin_name: str | None = None
     domestic_or_imported: str | None = None
     permit_number: str
+    # Explicit "Used on label" name from the form; null is not proof of absence.
+    applicant_trade_name: str | None = None
 
     # Application info
     application_type: str | None = None
