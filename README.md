@@ -373,3 +373,11 @@ MIT License covers this SDK; see [LICENSE](LICENSE). Data and label artwork have
 - [GitHub Repository](https://github.com/cola-cloud-us/colacloud-python)
 
 Public support: help@colacloud.us
+
+### Applicant trade names
+
+COLA list and detail models expose `applicant_trade_name`: the applicant DBA/trade
+name explicitly marked “Used on label” in the captured TTB form. It is separate
+from the product brand and legal company. `None` means no unambiguous marked
+value was captured, not proof that the applicant has no trade name.
+Use the existing permit-number and approval-date filters to select a cohort.

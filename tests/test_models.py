@@ -289,3 +289,19 @@ class TestReferenceDataResponse:
 
         assert response.data["name"] == "Napa Valley"
         assert response.data["state"] == "CA"
+
+
+class TestApplicantTradeName:
+    def test_summary_and_detail_preserve_trade_name(self, sample_cola_summary, sample_cola_detail):
+        for model, payload in [
+            (ColaSummary, sample_cola_summary),
+            (ColaDetail, sample_cola_detail),
+        ]:
+            parsed = model.model_validate({**payload, "applicant_trade_name": "BAOBAB WINES"})
+            assert parsed.applicant_trade_name == "BAOBAB WINES"
+            assert parsed.model_dump()["applicant_trade_name"] == "BAOBAB WINES"
+            assert model.model_validate(payload).applicant_trade_name is None
+            assert (
+                model.model_validate({**payload, "applicant_trade_name": None}).applicant_trade_name
+                is None
+            )
