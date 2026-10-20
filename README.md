@@ -381,3 +381,9 @@ name explicitly marked “Used on label” in the captured TTB form. It is separ
 from the product brand and legal company. `None` means no unambiguous marked
 value was captured, not proof that the applicant has no trade name.
 Use the existing permit-number and approval-date filters to select a cohort.
+
+## Certificate trust security update
+
+This release requires `certifi>=2026.10.19` to remove trust paths affected by the
+October 2026 eMudhra CA compromise. Upgrade this package and `certifi` in existing
+environments. Explicit custom CA bundles remain the caller's responsibility.
